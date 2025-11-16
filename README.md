@@ -124,7 +124,8 @@ CREATE TABLE Producto(
         REFERENCES CodigoBarras(id)
 );
 ```
-2. Configurar la Conexión 
+2. Configurar la Conexión
+    
 La clase DatabaseConnection obtiene los datos de conexión (por ejemplo) desde un archivo db.properties, que define:
 ```
 db.url=jdbc:mysql://localhost:3306/tpint
