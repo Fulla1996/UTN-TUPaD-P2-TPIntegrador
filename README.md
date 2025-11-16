@@ -145,14 +145,14 @@ src/
    |   ├── GenericDao.java
    |   ├── ProductoDaoImpl.java
    |   └── CodigoBarrasDaoImpl.java
+   ├── Main/
+   |   └── AppMenu.java
    ├── Models/Entities/
    |    ├── Producto.java 
-   |    └── CodigoBarras.java
-   ├── Service/
-   |   ├── ServiceProducto.java 
-   |   └── ServiceCodigoBarras.java           
-   └── Main/
-       └── AppMenu.java
+   |    └── CodigoBarras.java          
+   └── Service/
+       ├── ServiceProducto.java 
+       └── ServiceCodigoBarras.java
 ```
 
 ## Patrones y Buenas Prácticas Implementadas
