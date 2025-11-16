@@ -7,6 +7,7 @@ package prog2int.Dao;
 import prog2int.Models.Producto;
 import java.sql.*;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import prog2int.Config.DatabaseConnection;
 
@@ -41,7 +42,7 @@ private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marc
      * - Domicilio (puede ser NULL): dom_id, calle, numero
      */
     private static final String SELECT_BY_ID_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso.id, cb.valor " +
+            "p.peso, cb.valor " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.id = ? AND p.eliminado = FALSE";
 
@@ -50,9 +51,9 @@ private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marc
      * LEFT JOIN con domicilios para cargar relaciones.
      * Filtra por eliminado=FALSE (solo personas activas).
      */
-    private static final String SELECT_ALL_SQL = "SELECT p.id, p.nombre, p.apellido, p.dni, p.domicilio_id, " +
-            "d.id AS dom_id, d.calle, d.numero " +
-            "FROM personas p LEFT JOIN domicilios d ON p.domicilio_id = d.id " +
+    private static final String SELECT_ALL_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
+            "p.peso, cb.valor " +
+            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE";
 
     /**
@@ -136,26 +137,39 @@ private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marc
 
     @Override
     public List getAll() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        List<Producto> productos = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(SELECT_ALL_SQL)) {
+
+            while (rs.next()) {
+                productos.add(mapResultSetToProducto(rs));
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al obtener todas las personas: " + e.getMessage(), e);
+        }
+        return productos;
     }
-    /*
-    private Producto mapResultSetToPersona(ResultSet rs) throws SQLException {
+    
+    private Producto mapResultSetToProducto(ResultSet rs) throws SQLException {
         Producto producto = new Producto();
         producto.setId(rs.getInt("id"));
         producto.setNombre(rs.getString("nombre"));
-        producto.setApellido(rs.getString("apellido"));
-        producto.setDni(rs.getString("dni"));
+        producto.setCategoria(rs.getString("categoria"));
+        producto.setPeso(rs.getDouble("peso"));
+        producto.setPrecio(rs.getDouble("precio"));
 
         // Manejo correcto de LEFT JOIN: verificar si domicilio_id es NULL
-        int domicilioId = rs.getInt("domicilio_id");
+        /*int domicilioId = rs.getInt("domicilio_id");
         if (domicilioId > 0 && !rs.wasNull()) {
             Domicilio domicilio = new Domicilio();
             domicilio.setId(rs.getInt("dom_id"));
             domicilio.setCalle(rs.getString("calle"));
             domicilio.setNumero(rs.getString("numero"));
             persona.setDomicilio(domicilio);
-        }
+        }*/
 
-        return persona;
-    }*/
+        return producto;
+    }
 }

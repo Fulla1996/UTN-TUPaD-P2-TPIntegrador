@@ -4,7 +4,9 @@ import prog2int.Models.Persona;
 import java.util.List;
 import java.util.Scanner;
 import prog2int.Models.Domicilio;
+import prog2int.Models.Producto;
 import prog2int.Service.PersonaServiceImpl;
+import prog2int.Service.ProductoServiceImpl;
 
 /**
  * Controlador de las operaciones del menú (Menu Handler).
@@ -34,7 +36,7 @@ public class MenuHandler {
      * Servicio de personas para operaciones CRUD.
      * También proporciona acceso a DomicilioService mediante getDomicilioService().
      */
-    private final PersonaServiceImpl personaService;
+    private final ProductoServiceImpl personaService;
 
     /**
      * Constructor con inyección de dependencias.
@@ -44,7 +46,7 @@ public class MenuHandler {
      * @param personaService Servicio de personas
      * @throws IllegalArgumentException si alguna dependencia es null
      */
-    public MenuHandler(Scanner scanner, PersonaServiceImpl personaService) {
+    public MenuHandler(Scanner scanner, ProductoServiceImpl personaService) {
         if (scanner == null) {
             throw new IllegalArgumentException("Scanner no puede ser null");
         }
@@ -125,30 +127,29 @@ public class MenuHandler {
             System.out.print("¿Desea (1) listar todos o (2) buscar por nombre/apellido? Ingrese opcion: ");
             int subopcion = Integer.parseInt(scanner.nextLine());
 
-            List<Persona> personas;
+            List<Producto> productos;
             if (subopcion == 1) {
-                personas = personaService.getAll();
+                productos = personaService.getAll();
             } else if (subopcion == 2) {
                 System.out.print("Ingrese texto a buscar: ");
                 String filtro = scanner.nextLine().trim();
-                personas = personaService.buscarPorNombreApellido(filtro);
+                productos = null;//personaService.buscarPorNombreApellido(filtro);
             } else {
                 System.out.println("Opcion invalida.");
                 return;
             }
 
-            if (personas.isEmpty()) {
+            if (productos.isEmpty()) {
                 System.out.println("No se encontraron personas.");
                 return;
             }
 
-            for (Persona p : personas) {
-                System.out.println("ID: " + p.getId() + ", Nombre: " + p.getNombre() +
-                        ", Apellido: " + p.getApellido() + ", DNI: " + p.getDni());
-                if (p.getDomicilio() != null) {
+            for (Producto p : productos) {
+                System.out.println(p);
+                /*if (p.getDomicilio() != null) {
                     System.out.println("   Domicilio: " + p.getDomicilio().getCalle() +
                             " " + p.getDomicilio().getNumero());
-                }
+                }*/
             }
         } catch (Exception e) {
             System.err.println("Error al listar personas: " + e.getMessage());
@@ -182,7 +183,7 @@ public class MenuHandler {
      * - Dejar domicilio sin cambios
      */
     public void actualizarPersona() {
-        try {
+        /*try {
             System.out.print("ID de la persona a actualizar: ");
             int id = Integer.parseInt(scanner.nextLine());
             Persona p = personaService.getById(id);
@@ -215,7 +216,7 @@ public class MenuHandler {
             System.out.println("Persona actualizada exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al actualizar persona: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -261,13 +262,13 @@ public class MenuHandler {
      * - Pre-cargar domicilios en la BD
      */
     public void crearDomicilioIndependiente() {
-        try {
+        /*try {
             Domicilio domicilio = crearDomicilio();
             personaService.getDomicilioService().insertar(domicilio);
             System.out.println("Domicilio creado exitosamente con ID: " + domicilio.getId());
         } catch (Exception e) {
             System.err.println("Error al crear domicilio: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -282,7 +283,7 @@ public class MenuHandler {
      * Nota: Solo muestra domicilios con eliminado=FALSE (soft delete).
      */
     public void listarDomicilios() {
-        try {
+        /*try {
             List<Domicilio> domicilios = personaService.getDomicilioService().getAll();
             if (domicilios.isEmpty()) {
                 System.out.println("No se encontraron domicilios.");
@@ -293,7 +294,7 @@ public class MenuHandler {
             }
         } catch (Exception e) {
             System.err.println("Error al listar domicilios: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -320,7 +321,7 @@ public class MenuHandler {
      * 2. Asignar a la persona (opción 7)
      */
     public void actualizarDomicilioPorId() {
-        try {
+        /*try {
             System.out.print("ID del domicilio a actualizar: ");
             int id = Integer.parseInt(scanner.nextLine());
             Domicilio d = personaService.getDomicilioService().getById(id);
@@ -346,7 +347,7 @@ public class MenuHandler {
             System.out.println("Domicilio actualizado exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al actualizar domicilio: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -374,14 +375,14 @@ public class MenuHandler {
      * - Limpiar domicilios creados por error
      */
     public void eliminarDomicilioPorId() {
-        try {
+        /*try {
             System.out.print("ID del domicilio a eliminar: ");
             int id = Integer.parseInt(scanner.nextLine());
             personaService.getDomicilioService().eliminar(id);
             System.out.println("Domicilio eliminado exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al eliminar domicilio: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -405,7 +406,7 @@ public class MenuHandler {
      * que comparten el domicilio.
      */
     public void actualizarDomicilioPorPersona() {
-        try {
+        /*try {
             System.out.print("ID de la persona cuyo domicilio desea actualizar: ");
             int personaId = Integer.parseInt(scanner.nextLine());
             Persona p = personaService.getById(personaId);
@@ -437,7 +438,7 @@ public class MenuHandler {
             System.out.println("Domicilio actualizado exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al actualizar domicilio: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -459,7 +460,7 @@ public class MenuHandler {
      * Este es el método RECOMENDADO para eliminar domicilios en producción.
      */
     public void eliminarDomicilioPorPersona() {
-        try {
+        /*try {
             System.out.print("ID de la persona cuyo domicilio desea eliminar: ");
             int personaId = Integer.parseInt(scanner.nextLine());
             Persona p = personaService.getById(personaId);
@@ -479,7 +480,7 @@ public class MenuHandler {
             System.out.println("Domicilio eliminado exitosamente y referencia actualizada.");
         } catch (Exception e) {
             System.err.println("Error al eliminar domicilio: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -532,7 +533,7 @@ public class MenuHandler {
      * @throws Exception Si hay error al insertar/actualizar domicilio
      */
     private void actualizarDomicilioDePersona(Persona p) throws Exception {
-        if (p.getDomicilio() != null) {
+        /*if (p.getDomicilio() != null) {
             System.out.print("¿Desea actualizar el domicilio? (s/n): ");
             if (scanner.nextLine().equalsIgnoreCase("s")) {
                 System.out.print("Nueva calle (" + p.getDomicilio().getCalle() + "): ");
@@ -556,6 +557,6 @@ public class MenuHandler {
                 personaService.getDomicilioService().insertar(nuevoDom);
                 p.setDomicilio(nuevoDom);
             }
-        }
+        }*/
     }
 }

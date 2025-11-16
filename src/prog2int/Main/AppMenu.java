@@ -1,10 +1,14 @@
 package prog2int.Main;
 
 import java.util.Scanner;
+import prog2int.Dao.CodigoBarrasDAO;
 import prog2int.Dao.DomicilioDAO;
 import prog2int.Dao.PersonaDAO;
+import prog2int.Dao.ProductoDAO;
+import prog2int.Service.CodigoBarrasServiceImpl;
 import prog2int.Service.DomicilioServiceImpl;
 import prog2int.Service.PersonaServiceImpl;
+import prog2int.Service.ProductoServiceImpl;
 
 /**
  * Orquestador principal del menú de la aplicación.
@@ -63,8 +67,8 @@ public class AppMenu {
      */
     public AppMenu() {
         this.scanner = new Scanner(System.in);
-        PersonaServiceImpl personaService = createPersonaService();
-        this.menuHandler = new MenuHandler(scanner, personaService);
+        ProductoServiceImpl productoService = createProductoService();
+        this.menuHandler = new MenuHandler(scanner, productoService);
         this.running = true;
     }
 
@@ -191,10 +195,11 @@ public class AppMenu {
      *
      * @return PersonaServiceImpl completamente inicializado con todas sus dependencias
      */
-    private PersonaServiceImpl createPersonaService() {
-        DomicilioDAO domicilioDAO = new DomicilioDAO();
-        PersonaDAO personaDAO = new PersonaDAO(domicilioDAO);
-        DomicilioServiceImpl domicilioService = new DomicilioServiceImpl(domicilioDAO);
-        return new PersonaServiceImpl(personaDAO, domicilioService);
+    private ProductoServiceImpl createProductoService() {
+        //DomicilioDAO domicilioDAO = new DomicilioDAO();
+        CodigoBarrasDAO cbDAO = new CodigoBarrasDAO();
+        ProductoDAO productoDAO = new ProductoDAO(cbDAO);
+        CodigoBarrasServiceImpl cbService = new CodigoBarrasServiceImpl();
+        return new ProductoServiceImpl(productoDAO, cbService);
     }
 }

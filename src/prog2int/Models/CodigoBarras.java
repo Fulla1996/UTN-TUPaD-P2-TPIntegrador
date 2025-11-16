@@ -36,27 +36,76 @@ public class CodigoBarras extends Base {
         super();
     }
 
-    /**
-     * Compara dos personas por DNI (identificador único).
-     * Dos personas son iguales si tienen el mismo DNI.
-     * Correcto porque DNI es único en el sistema.
-     */
-    /*@Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Persona persona = (Persona) o;
-        return Objects.equals(dni, persona.dni);
+    public TipoCB getTipoCB() {
+        return tipoCB;
     }
 
-    /**
-     * Hash code basado en DNI.
-     * Consistente con equals(): personas con mismo DNI tienen mismo hash.
-     */
-    
-    
+    public void setTipoCB(TipoCB tipoCB) {
+        this.tipoCB = tipoCB;
+    }
+
+    public String getValor() {
+        return valor;
+    }
+
+    public void setValor(String valor) {
+        this.valor = valor;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
+    }
+
+    @Override
+    public String toString() {
+        return "CodigoBarras{" + "tipoCB=" + tipoCB + ", valor=" + valor + ", fecha=" + fecha + ", observaciones=" + observaciones + ", producto=" + producto + '}';
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(valor);
+        int hash = 7;
+        hash = 79 * hash + Objects.hashCode(this.tipoCB);
+        hash = 79 * hash + Objects.hashCode(this.valor);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CodigoBarras other = (CodigoBarras) obj;
+        if (!Objects.equals(this.valor, other.valor)) {
+            return false;
+        }
+        return this.tipoCB == other.tipoCB;
+    }
+
+    
 }
