@@ -42,18 +42,24 @@ public class MenuDisplay {
      * Nota: Los números de opción corresponden al switch en AppMenu.processOption().
      */
     public static void mostrarMenuPrincipal() {
-        System.out.println("\n========= MENU =========");
-        System.out.println("1. Listar codigos barras");
-        System.out.println("2. Listar personas");
-        System.out.println("3. Actualizar persona");
-        System.out.println("4. Eliminar persona");
-        System.out.println("5. Crear domicilio");
-        System.out.println("6. Listar Codigos Barras");
-        System.out.println("7. Actualizar domicilio por ID");
-        System.out.println("8. Eliminar domicilio por ID");
-        System.out.println("9. Actualizar domicilio por ID de persona");
-        System.out.println("10. Eliminar domicilio por ID de persona");
+        System.out.println("\n========= MENU PRINCIPAL =========");
+        
+        System.out.println("---- CÓDIGOS DE BARRAS ----");
+        System.out.println("1. Crear Código de Barras");
+        System.out.println("2. Buscar Código por ID");
+        System.out.println("3. Listar Códigos de Barras");
+        System.out.println("4. Actualizar Código de Barras");
+        System.out.println("5. Eliminar Código de Barras");
+        
+        
+        System.out.println("---- PRODUCTOS ----");
+        System.out.println("6. Crear Producto");
+        System.out.println("7. Buscar Producto por ID");
+        System.out.println("8. Listar Productos");
+        System.out.println("9. Actualizar Producto");
+        System.out.println("10. Eliminar Producto");
+        
         System.out.println("0. Salir");
-        System.out.print("Ingrese una opcion: ");
+        System.out.print("Ingrese una opción: ");
     }
 }
