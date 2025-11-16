@@ -181,7 +181,7 @@ public class PersonaDAO implements GenericDAO<Persona> {
             stmt.setString(2, persona.getApellido());
             stmt.setString(3, persona.getDni());
             setDomicilioId(stmt, 4, persona.getDomicilio());
-            stmt.setInt(5, persona.getId());
+            stmt.setLong(5, persona.getId());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
@@ -204,11 +204,11 @@ public class PersonaDAO implements GenericDAO<Persona> {
      * @throws SQLException Si la persona no existe o hay error de BD
      */
     @Override
-    public void eliminar(int id) throws Exception {
+    public void eliminar(long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
 
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected == 0) {
@@ -226,11 +226,11 @@ public class PersonaDAO implements GenericDAO<Persona> {
      * @throws Exception Si hay error de BD (captura SQLException y re-lanza con mensaje descriptivo)
      */
     @Override
-    public Persona getById(int id) throws Exception {
+    public Persona getById(long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
 
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -378,7 +378,7 @@ public class PersonaDAO implements GenericDAO<Persona> {
      */
     private void setDomicilioId(PreparedStatement stmt, int parameterIndex, Domicilio domicilio) throws SQLException {
         if (domicilio != null && domicilio.getId() > 0) {
-            stmt.setInt(parameterIndex, domicilio.getId());
+            stmt.setLong(parameterIndex, domicilio.getId());
         } else {
             stmt.setNull(parameterIndex, Types.INTEGER);
         }

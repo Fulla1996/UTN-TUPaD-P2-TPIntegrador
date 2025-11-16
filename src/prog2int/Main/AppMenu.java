@@ -147,16 +147,16 @@ public class AppMenu {
      */
     private void processOption(int opcion) {
         switch (opcion) {
-            case 1 -> menuHandler.crearPersona();
-            case 2 -> menuHandler.listarPersonas();
-            case 3 -> menuHandler.actualizarPersona();
-            case 4 -> menuHandler.eliminarPersona();
-            case 5 -> menuHandler.crearDomicilioIndependiente();
-            case 6 -> menuHandler.listarCodigosBarras();
-            case 7 -> menuHandler.actualizarDomicilioPorId();
-            case 8 -> menuHandler.eliminarDomicilioPorId();
-            case 9 -> menuHandler.actualizarDomicilioPorPersona();
-            case 10 -> menuHandler.eliminarDomicilioPorPersona();
+            //case 1 -> menuHandler.crearPersona();
+            case 2 -> menuHandler.listarProductos();
+            //case 3 -> menuHandler.actualizarPersona();
+            //case 4 -> menuHandler.eliminarPersona();
+            //case 5 -> menuHandler.crearDomicilioIndependiente();
+            case 6 -> menuHandler.listarCodigo();
+            //case 7 -> menuHandler.actualizarDomicilioPorId();
+            //case 8 -> menuHandler.eliminarDomicilioPorId();
+            //case 9 -> menuHandler.actualizarDomicilioPorPersona();
+            //case 10 -> menuHandler.eliminarDomicilioPorPersona();
             case 0 -> {
                 System.out.println("Saliendo...");
                 running = false;

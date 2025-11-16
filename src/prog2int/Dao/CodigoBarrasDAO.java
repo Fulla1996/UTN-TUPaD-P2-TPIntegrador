@@ -82,12 +82,12 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
     }
 
     @Override
-    public void eliminar(int id) throws Exception {
+    public void eliminar(long id) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public CodigoBarras getById(int id) throws Exception {
+    public CodigoBarras getById(long id) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
@@ -134,7 +134,7 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
     
     //(id, tipo, valor, fechaAsignacion, observacion
     private void setCodigoBarrasParameters(PreparedStatement stmt, CodigoBarras cb) throws SQLException {
-        stmt.setInt(1, cb.getId());
+        stmt.setLong(1, cb.getId());
         stmt.setString(2, cb.getTipoCB().toString());
         stmt.setString(3, cb.getValor());
         stmt.setDate(4, new java.sql.Date(cb.getFecha().getTime()));

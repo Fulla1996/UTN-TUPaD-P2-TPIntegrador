@@ -15,7 +15,7 @@ import prog2int.Config.DatabaseConnection;
  *
  * @author Fulla
  */
-public class ProductoDAO implements GenericDAO{
+public class ProductoDAO implements GenericDAO<Producto>{
     private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marca, caategoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     /**
@@ -98,31 +98,31 @@ public class ProductoDAO implements GenericDAO{
         this.codigoBarrasDAO = codigoBarrasDAO;
     }
     @Override
-    public void insertar(Object entidad) throws Exception {
+    public void insertar(Producto entidad) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void insertTx(Object entidad, Connection conn) throws Exception {
+    public void insertTx(Producto entidad, Connection conn) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void actualizar(Object entidad) throws Exception {
+    public void actualizar(Producto entidad) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void eliminar(int id) throws Exception {
+    public void eliminar(long id) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public Producto getById(int id) throws Exception {
+    public Producto getById(long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
 
-            stmt.setInt(1, id);
+            stmt.setLong(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
