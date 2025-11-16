@@ -43,12 +43,12 @@ public class MenuDisplay {
      */
     public static void mostrarMenuPrincipal() {
         System.out.println("\n========= MENU =========");
-        System.out.println("1. Crear persona");
+        System.out.println("1. Listar codigos barras");
         System.out.println("2. Listar personas");
         System.out.println("3. Actualizar persona");
         System.out.println("4. Eliminar persona");
         System.out.println("5. Crear domicilio");
-        System.out.println("6. Listar domicilios");
+        System.out.println("6. Listar Codigos Barras");
         System.out.println("7. Actualizar domicilio por ID");
         System.out.println("8. Eliminar domicilio por ID");
         System.out.println("9. Actualizar domicilio por ID de persona");

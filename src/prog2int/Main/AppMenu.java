@@ -68,7 +68,8 @@ public class AppMenu {
     public AppMenu() {
         this.scanner = new Scanner(System.in);
         ProductoServiceImpl productoService = createProductoService();
-        this.menuHandler = new MenuHandler(scanner, productoService);
+        CodigoBarrasServiceImpl cbService = createCodigoBarrasService();
+        this.menuHandler = new MenuHandler(scanner, productoService, cbService);
         this.running = true;
     }
 
@@ -151,7 +152,7 @@ public class AppMenu {
             case 3 -> menuHandler.actualizarPersona();
             case 4 -> menuHandler.eliminarPersona();
             case 5 -> menuHandler.crearDomicilioIndependiente();
-            case 6 -> menuHandler.listarDomicilios();
+            case 6 -> menuHandler.listarCodigosBarras();
             case 7 -> menuHandler.actualizarDomicilioPorId();
             case 8 -> menuHandler.eliminarDomicilioPorId();
             case 9 -> menuHandler.actualizarDomicilioPorPersona();
@@ -196,10 +197,14 @@ public class AppMenu {
      * @return PersonaServiceImpl completamente inicializado con todas sus dependencias
      */
     private ProductoServiceImpl createProductoService() {
-        //DomicilioDAO domicilioDAO = new DomicilioDAO();
         CodigoBarrasDAO cbDAO = new CodigoBarrasDAO();
         ProductoDAO productoDAO = new ProductoDAO(cbDAO);
-        CodigoBarrasServiceImpl cbService = new CodigoBarrasServiceImpl();
+        CodigoBarrasServiceImpl cbService = new CodigoBarrasServiceImpl(cbDAO);
         return new ProductoServiceImpl(productoDAO, cbService);
+    }
+    private CodigoBarrasServiceImpl createCodigoBarrasService() {
+        CodigoBarrasDAO cbDAO = new CodigoBarrasDAO();
+        CodigoBarrasServiceImpl cbService = new CodigoBarrasServiceImpl(cbDAO);
+        return cbService;
     }
 }

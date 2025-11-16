@@ -5,6 +5,7 @@
 package prog2int.Service;
 
 import java.util.List;
+import prog2int.Dao.CodigoBarrasDAO;
 
 /**
  *
@@ -12,6 +13,12 @@ import java.util.List;
  */
 public class CodigoBarrasServiceImpl implements GenericService{
 
+    private final CodigoBarrasDAO cbDAO;
+
+    public CodigoBarrasServiceImpl(CodigoBarrasDAO cbDAO) {
+        this.cbDAO = cbDAO;
+    }
+    
     @Override
     public void insertar(Object entidad) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -33,9 +40,8 @@ public class CodigoBarrasServiceImpl implements GenericService{
     }
 
     @Override
-    public List getAll() /*throws Exception*/ {
-        System.out.println("GETALL de CodigoBarras");
-        return null;
+    public List getAll()  throws Exception {
+        return cbDAO.getAll();
     }
     
 }

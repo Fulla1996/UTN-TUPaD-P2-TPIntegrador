@@ -1,10 +1,13 @@
 package prog2int.Main;
 
+import java.util.ArrayList;
 import prog2int.Models.Persona;
 import java.util.List;
 import java.util.Scanner;
+import prog2int.Models.CodigoBarras;
 import prog2int.Models.Domicilio;
 import prog2int.Models.Producto;
+import prog2int.Service.CodigoBarrasServiceImpl;
 import prog2int.Service.PersonaServiceImpl;
 import prog2int.Service.ProductoServiceImpl;
 
@@ -36,7 +39,8 @@ public class MenuHandler {
      * Servicio de personas para operaciones CRUD.
      * También proporciona acceso a DomicilioService mediante getDomicilioService().
      */
-    private final ProductoServiceImpl personaService;
+    private final ProductoServiceImpl productoService;
+    private final CodigoBarrasServiceImpl cbService;
 
     /**
      * Constructor con inyección de dependencias.
@@ -46,15 +50,19 @@ public class MenuHandler {
      * @param personaService Servicio de personas
      * @throws IllegalArgumentException si alguna dependencia es null
      */
-    public MenuHandler(Scanner scanner, ProductoServiceImpl personaService) {
+    public MenuHandler(Scanner scanner, ProductoServiceImpl productoService, CodigoBarrasServiceImpl cbService) {
         if (scanner == null) {
             throw new IllegalArgumentException("Scanner no puede ser null");
         }
-        if (personaService == null) {
+        if (productoService == null) {
             throw new IllegalArgumentException("PersonaService no puede ser null");
         }
+        if (cbService == null){
+            throw new IllegalArgumentException("CodigoBarrasService no puede ser null");
+        }
         this.scanner = scanner;
-        this.personaService = personaService;
+        this.productoService = productoService;
+        this.cbService = cbService;
     }
 
     /**
@@ -79,7 +87,7 @@ public class MenuHandler {
      * - Todos los errores se capturan y muestran, NO se propagan al menú principal
      */
     public void crearPersona() {
-        try {
+        /*try {
             System.out.print("Nombre: ");
             String nombre = scanner.nextLine().trim();
             System.out.print("Apellido: ");
@@ -99,7 +107,7 @@ public class MenuHandler {
             System.out.println("Persona creada exitosamente con ID: " + persona.getId());
         } catch (Exception e) {
             System.err.println("Error al crear persona: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -129,7 +137,7 @@ public class MenuHandler {
 
             List<Producto> productos;
             if (subopcion == 1) {
-                productos = personaService.getAll();
+                productos = productoService.getAll();
             } else if (subopcion == 2) {
                 System.out.print("Ingrese texto a buscar: ");
                 String filtro = scanner.nextLine().trim();
@@ -146,10 +154,9 @@ public class MenuHandler {
 
             for (Producto p : productos) {
                 System.out.println(p);
-                /*if (p.getDomicilio() != null) {
-                    System.out.println("   Domicilio: " + p.getDomicilio().getCalle() +
-                            " " + p.getDomicilio().getNumero());
-                }*/
+                if (p.getCodigoBarras() != null) {
+                    System.out.println(p.getCodigoBarras());
+                }
             }
         } catch (Exception e) {
             System.err.println("Error al listar personas: " + e.getMessage());
@@ -237,14 +244,14 @@ public class MenuHandler {
      * - Esa opción primero desasocia el domicilio, luego lo elimina (seguro)
      */
     public void eliminarPersona() {
-        try {
+        /*try {
             System.out.print("ID de la persona a eliminar: ");
             int id = Integer.parseInt(scanner.nextLine());
             personaService.eliminar(id);
             System.out.println("Persona eliminada exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al eliminar persona: " + e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -282,19 +289,23 @@ public class MenuHandler {
      *
      * Nota: Solo muestra domicilios con eliminado=FALSE (soft delete).
      */
-    public void listarDomicilios() {
-        /*try {
-            List<Domicilio> domicilios = personaService.getDomicilioService().getAll();
-            if (domicilios.isEmpty()) {
-                System.out.println("No se encontraron domicilios.");
+    public void listarCodigosBarras() {
+        try {
+            List<CodigoBarras> cbs;
+            cbs = cbService.getAll();
+            
+            if (cbs.isEmpty()) {
+                System.out.println("No se encontraron Codigos de Barras.");
                 return;
             }
-            for (Domicilio d : domicilios) {
-                System.out.println("ID: " + d.getId() + ", " + d.getCalle() + " " + d.getNumero());
+
+            for (CodigoBarras cb : cbs) {
+                System.out.println(cb);
+                
             }
         } catch (Exception e) {
-            System.err.println("Error al listar domicilios: " + e.getMessage());
-        }*/
+            System.err.println("Error al listar personas: " + e.getMessage());
+        }
     }
 
     /**

@@ -4,6 +4,7 @@
  */
 package prog2int.Models;
 
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -13,7 +14,8 @@ import java.util.Objects;
 public class CodigoBarras extends Base {
     
     private TipoCB tipoCB;
-    private String valor, fecha, observaciones;
+    private String valor, observaciones;
+    private Date fecha;
 
     private Producto producto;
 
@@ -22,7 +24,7 @@ public class CodigoBarras extends Base {
      * Usado por PersonaDAO al mapear ResultSet.
      * El domicilio se asigna posteriormente con setDomicilio().
      */
-    public CodigoBarras(int id, String tipoCB,String valor, String fecha, String observaciones) {
+    public CodigoBarras(int id, String tipoCB,String valor, Date fecha, String observaciones) {
         super(id, false);
         this.tipoCB = TipoCB.valueOf(tipoCB.toUpperCase());
         this.valor = valor;
@@ -52,11 +54,11 @@ public class CodigoBarras extends Base {
         this.valor = valor;
     }
 
-    public String getFecha() {
+    public Date getFecha() {
         return fecha;
     }
 
-    public void setFecha(String fecha) {
+    public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
 

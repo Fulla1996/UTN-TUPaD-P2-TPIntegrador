@@ -16,7 +16,7 @@ import prog2int.Config.DatabaseConnection;
  * @author Fulla
  */
 public class ProductoDAO implements GenericDAO{
-private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marca, caategoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marca, caategoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     /**
     * Query de actualización de persona.
