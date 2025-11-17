@@ -186,6 +186,63 @@ public class ProductoDAO implements GenericDAO<Producto>{
         }
         return productos;
     }
+    
+    /*SEARCH_BY_NAME_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
+            "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";*/
+
+    private List<Producto> getListByName(String name) throws Exception{
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
+        }
+        
+        List<Producto> productos = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
+
+            stmt.setString(1, name);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    productos.add(mapResultSetToProducto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
+        }
+        return productos;
+    }
+    
+    /*SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
+            "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";*/
+    
+        private List<Producto> getListByBrand(String brand) throws Exception{
+        if (brand == null || brand.trim().isEmpty()) {
+            throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
+        }
+        
+        List<Producto> productos = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
+
+            stmt.setString(1, brand);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    productos.add(mapResultSetToProducto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
+        }
+        return productos;
+    }
+    
     //"INSERT INTO producto (id, nombre, marca, categoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)"
     private void setProductoParameters(PreparedStatement stmt, Producto producto) throws SQLException {
         stmt.setLong(1, producto.getId());

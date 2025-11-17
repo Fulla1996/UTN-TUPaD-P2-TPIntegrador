@@ -142,6 +142,23 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
         return codigosBarras;
     }
+    /*SEARCH_BY_VALOR_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
+            "FROM codigoBarras " +
+            "WHERE eliminado = FALSE AND (valor LIKE ?)";*/
+    public CodigoBarras getByValor(String value) throws SQLException{
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_VALOR_SQL)) {
+
+            stmt.setString(1, value);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCodigoBarras(rs);
+                }
+            }
+        }
+        return null;
+    }
     
     public CodigoBarras mapResultSetToCodigoBarras(ResultSet rs) throws SQLException{
         CodigoBarras cb = new CodigoBarras();
