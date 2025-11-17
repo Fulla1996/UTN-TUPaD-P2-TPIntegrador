@@ -1,6 +1,8 @@
 package prog2int.Main;
 
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -102,7 +104,7 @@ public class MenuHandler {
             System.out.print("Observaciones: ");
             String obs = scanner.nextLine().trim();
 
-            CodigoBarras cb = new CodigoBarras(id, false, tipo, valor, null, obs);
+            CodigoBarras cb = new CodigoBarras(id, tipo.name(), valor, new Date(), obs);
             cbService.insertar(cb);
 
             System.out.println("Código de barras creado con éxito.");
@@ -282,7 +284,12 @@ public class MenuHandler {
             System.out.print("Peso: ");
             double peso = Double.parseDouble(scanner.nextLine());
 
-            Producto p = new Producto(id, false, nombre, marca, categoria, precio, peso);
+            ///Completar ingreso de información de codigo de barras
+            System.out.println("CodigoBarras");
+            CodigoBarras cb = new CodigoBarras();
+            
+            
+            Producto p = new Producto(id, nombre, marca, categoria, precio, peso, cb);
             productoService.insertar(p);
 
             System.out.println("✔ Producto creado con éxito.");
@@ -497,7 +504,6 @@ public class MenuHandler {
         } catch (Exception e) {
             System.err.println("Error al actualizar domicilio: " + e.getMessage());
         }*/
-    }
 
     /**
      * Opción 10: Eliminar domicilio de una persona (MÉTODO SEGURO - RN-029 solucionado).
@@ -539,7 +545,7 @@ public class MenuHandler {
         } catch (Exception e) {
             System.err.println("Error al eliminar domicilio: " + e.getMessage());
         }*/
-    }
+    
 
     /**
      * Método auxiliar privado: Crea un objeto Domicilio capturando calle y número.
@@ -608,5 +614,5 @@ public class MenuHandler {
                 p.setDomicilio(nuevoDom);
             }
         }*/
-    }
+    
 }

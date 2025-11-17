@@ -20,7 +20,7 @@ private CodigoBarras codigoBarras;
      * Usado por PersonaDAO al mapear ResultSet.
      * El domicilio se asigna posteriormente con setDomicilio().
      */
-    public Producto(int id, String nombre, String marca, String categoria, double precio, double peso, CodigoBarras cb) {
+    public Producto(long id, String nombre, String marca, String categoria, double precio, double peso, CodigoBarras cb) {
         super(id, false);
         this.nombre = nombre;
         this.marca = marca;

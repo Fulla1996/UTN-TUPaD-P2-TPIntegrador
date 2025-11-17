@@ -6,12 +6,13 @@ package prog2int.Service;
 
 import java.util.List;
 import prog2int.Dao.ProductoDAO;
+import prog2int.Models.Producto;
 
 /**
  *
  * @author Fulla
  */
-public class ProductoServiceImpl implements GenericService{
+public class ProductoServiceImpl implements GenericService<Producto>{
 
     private final ProductoDAO productoDAO;
     private final CodigoBarrasServiceImpl codigoBarrasServiceImpl;
@@ -29,22 +30,22 @@ public class ProductoServiceImpl implements GenericService{
     
     
     @Override
-    public void insertar(Object entidad) throws Exception {
+    public void insertar(Producto entidad) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void actualizar(Object entidad) throws Exception {
+    public void actualizar(Producto entidad) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void eliminar(int id) throws Exception {
+    public void eliminar(long id) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public Object getById(int id) throws Exception {
+    public Producto getById(long id) throws Exception {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor a 0");
         }
