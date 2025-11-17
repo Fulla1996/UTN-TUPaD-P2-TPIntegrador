@@ -38,7 +38,7 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
      */
     private static final String SELECT_BY_ID_SQL = "SELECT id, tipo, valor, fechaAsignacion, observacion " +
             "FROM CodigoBarras " +
-            "WHERE id = ? AND p.eliminado = FALSE";
+            "WHERE id = ? AND eliminado = FALSE";
 
     /**
      * Query para obtener todos los códigos de barras.
@@ -76,19 +76,54 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
     }
 
+    //"UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observacion = ? WHERE id = ?"
     @Override
-    public void actualizar(CodigoBarras entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void actualizar(CodigoBarras cb) throws Exception {
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
+
+            stmt.setString(1, cb.getTipoCB().name());
+            stmt.setString(2, cb.getValor());
+            stmt.setDate(3, new java.sql.Date(cb.getFecha().getTime()));
+            stmt.setString(4, cb.getObservaciones());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No se pudo actualizar el Codigo de Barras con ID: " + cb.getId());
+            }
+            
+        }
     }
 
+    //"UPDATE codigoBarras SET eliminado = TRUE WHERE id = ?"
     @Override
     public void eliminar(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
+
+            stmt.setLong(1, id);
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("No se encontró Codigo de Barras con ID: " + id);
+            }
+        }
     }
 
     @Override
     public CodigoBarras getById(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
+
+            stmt.setInt(1, (int)id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCodigoBarras(rs);
+                }
+            }
+        }
+        return null;
     }
 
     @Override

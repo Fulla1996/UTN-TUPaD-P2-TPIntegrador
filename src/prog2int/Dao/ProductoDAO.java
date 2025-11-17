@@ -10,27 +10,29 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import prog2int.Config.DatabaseConnection;
+import prog2int.Models.CodigoBarras;
+import prog2int.Models.TipoCB;
 
 /**
  *
  * @author Fulla
  */
 public class ProductoDAO implements GenericDAO<Producto>{
-    private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marca, caategoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = "INSERT INTO producto (id, nombre, marca, categoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     /**
     * Query de actualización de persona.
     * Actualiza nombre, apellido, dni y FK domicilio_id por id.
     * NO actualiza el flag eliminado (solo se modifica en soft delete).
     */
-    private static final String UPDATE_SQL = "UPDATE personas SET nombre = ?, apellido = ?, dni = ?, domicilio_id = ? WHERE id = ?";
+    private static final String UPDATE_SQL = "UPDATE producto SET nombre = ?, marca = ?, categoria = ?, precio = ?, peso = ?, codigoBarras = ? WHERE id = ?";
 
     /**
      * Query de soft delete.
      * Marca eliminado=TRUE sin borrar físicamente la fila.
      * Preserva integridad referencial y datos históricos.
      */
-    private static final String DELETE_SQL = "UPDATE personas SET eliminado = TRUE WHERE id = ?";
+    private static final String DELETE_SQL = "UPDATE producto SET eliminado = TRUE WHERE id = ?";
 
     /**
      * Query para obtener persona por ID.
@@ -42,7 +44,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * - Domicilio (puede ser NULL): dom_id, calle, numero
      */
     private static final String SELECT_BY_ID_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.valor " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.id = ? AND p.eliminado = FALSE";
 
@@ -52,7 +54,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Filtra por eliminado=FALSE (solo personas activas).
      */
     private static final String SELECT_ALL_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.valor " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE";
 
@@ -62,10 +64,10 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Usa % antes y después del filtro: LIKE '%filtro%'
      * Solo personas activas (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_NAME_SQL = "SELECT p.id, p.nombre, p.apellido, p.dni, p.domicilio_id, " +
-            "d.id AS dom_id, d.calle, d.numero " +
-            "FROM personas p LEFT JOIN domicilios d ON p.domicilio_id = d.id " +
-            "WHERE p.eliminado = FALSE AND (p.nombre LIKE ? OR p.apellido LIKE ?)";
+    private static final String SEARCH_BY_NAME_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
+            "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";
 
     /**
      * Query de búsqueda exacta por DNI.
@@ -73,10 +75,10 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Usado por PersonaServiceImpl.validateDniUnique() para verificar unicidad.
      * Solo personas activas (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_DNI_SQL = "SELECT p.id, p.nombre, p.apellido, p.dni, p.domicilio_id, " +
-            "d.id AS dom_id, d.calle, d.numero " +
-            "FROM personas p LEFT JOIN domicilios d ON p.domicilio_id = d.id " +
-            "WHERE p.eliminado = FALSE AND p.dni = ?";
+    private static final String SEARCH_BY_MARCA_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
+            "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";
 
     /**
      * DAO de domicilios (actualmente no usado, pero disponible para operaciones futuras).
@@ -98,23 +100,56 @@ public class ProductoDAO implements GenericDAO<Producto>{
         this.codigoBarrasDAO = codigoBarrasDAO;
     }
     @Override
-    public void insertar(Producto entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void insertar(Producto prod) throws Exception {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+
+            setProductoParameters(stmt, prod);
+            stmt.executeUpdate();
+        }
     }
 
     @Override
-    public void insertTx(Producto entidad, Connection conn) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void insertTx(Producto prod, Connection conn) throws Exception {
+        try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            setProductoParameters(stmt, prod);
+            stmt.executeUpdate();
+        }
     }
 
+    //"UPDATE producto SET nombre = ?, marca = ?, categoria = ?, precio = ?, peso = ?, codigoBarras = ? WHERE id = ?";
     @Override
-    public void actualizar(Producto entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void actualizar(Producto prod) throws Exception {
+            try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
+
+            stmt.setString(1, prod.getNombre());
+            stmt.setString(2, prod.getMarca());
+            stmt.setString(3, prod.getCategoria());
+            stmt.setDouble(4, prod.getPrecio());
+            stmt.setDouble(5, prod.getPeso());
+            stmt.setLong(6, prod.getCodigoBarras().getId());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No se pudo actualizar el Codigo de Barras con ID: " + prod.getId());
+            }
+            
+        }
     }
 
     @Override
     public void eliminar(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
+
+            stmt.setLong(1, id);
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("No se encontró Producto con ID: " + id);
+            }
+        }
     }
 
     @Override
@@ -126,11 +161,11 @@ public class ProductoDAO implements GenericDAO<Producto>{
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return null;//mapResultSetToPersona(rs);
+                    return mapResultSetToProducto(rs);
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al obtener persona por ID: " + e.getMessage(), e);
+            throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
         }
         return null;
     }
@@ -147,9 +182,19 @@ public class ProductoDAO implements GenericDAO<Producto>{
                 productos.add(mapResultSetToProducto(rs));
             }
         } catch (SQLException e) {
-            throw new Exception("Error al obtener todas las personas: " + e.getMessage(), e);
+            throw new Exception("Error al obtener todos los productos: " + e.getMessage(), e);
         }
         return productos;
+    }
+    //"INSERT INTO producto (id, nombre, marca, categoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    private void setProductoParameters(PreparedStatement stmt, Producto producto) throws SQLException {
+        stmt.setLong(1, producto.getId());
+        stmt.setString(2, producto.getNombre());
+        stmt.setString(3, producto.getMarca());
+        stmt.setString(4, producto.getCategoria());
+        stmt.setDouble(5, producto.getPrecio());
+        stmt.setDouble(6, producto.getPeso());
+        stmt.setLong(7, producto.getCodigoBarras().getId());
     }
     
     private Producto mapResultSetToProducto(ResultSet rs) throws SQLException {
@@ -159,17 +204,17 @@ public class ProductoDAO implements GenericDAO<Producto>{
         producto.setCategoria(rs.getString("categoria"));
         producto.setPeso(rs.getDouble("peso"));
         producto.setPrecio(rs.getDouble("precio"));
-
+        
         // Manejo correcto de LEFT JOIN: verificar si domicilio_id es NULL
-        /*int domicilioId = rs.getInt("domicilio_id");
-        if (domicilioId > 0 && !rs.wasNull()) {
-            Domicilio domicilio = new Domicilio();
-            domicilio.setId(rs.getInt("dom_id"));
-            domicilio.setCalle(rs.getString("calle"));
-            domicilio.setNumero(rs.getString("numero"));
-            persona.setDomicilio(domicilio);
-        }*/
-
+        CodigoBarras cb = new CodigoBarras();
+        cb.setId(rs.getInt("cb.id"));
+        cb.setTipoCB(TipoCB.valueOf(rs.getString("cb.tipo")));
+        cb.setValor(rs.getString("cb.valor"));
+        cb.setFecha(rs.getDate("cb.fechaAsignacion"));
+        cb.setObservaciones(rs.getString("cb.observacion"));
+        
+        producto.setCodigoBarras(cb);
+        
         return producto;
     }
 }
