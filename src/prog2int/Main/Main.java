@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import prog2int.Config.DatabaseConnection;
 
+//prueba
 /**
  * Punto de entrada alternativo de la aplicación.
  * Clase simple que delega inmediatamente a AppMenu.

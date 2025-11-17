@@ -20,24 +20,75 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
         this.cbDAO = cbDAO;
     }
     
+        private long generarNuevoId() throws Exception {
+        Long maxId = cbDAO.getMaxId();
+        return (maxId == null ? 1 : maxId + 1);
+        }
+        
+        private void validarCodigo(CodigoBarras cb) throws Exception {
+
+        if (cb.getValor() == null || cb.getValor().isBlank()) {
+            throw new Exception("El valor del código de barras no puede estar vacío.");
+        }
+
+        // Solo dígitos
+        if (!cb.getValor().matches("\\d+")) {
+            throw new Exception("El código de barras solo puede contener números.");
+        }
+
+        int longitud = cb.getValor().length();
+
+        switch (cb.getTipoCB()) {
+            case EAN13:
+                if (longitud != 13) {
+                    throw new Exception("EAN13 debe tener exactamente 13 dígitos.");
+                }
+                break;
+
+            case EAN8:
+                if (longitud != 8) {
+                    throw new Exception("EAN8 debe tener exactamente 8 dígitos.");
+                }
+                break;
+
+            case UPC:
+                if (longitud != 12) {
+                    throw new Exception("UPC debe tener exactamente 12 dígitos.");
+                }
+                break;
+
+            default:
+                throw new Exception("Tipo de código de barras no reconocido.");
+        }
+    }
+    
     @Override
-    public void insertar(CodigoBarras entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void insertar(CodigoBarras cb) throws Exception {
+        validarCodigo(cb); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        
+        cb.setId(generarNuevoId());
+        cbDAO.insertar(cb);
     }
 
     @Override
-    public void actualizar(CodigoBarras entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void actualizar(CodigoBarras cb) throws Exception {
+        if (cb.getId() <= 0) {
+            throw new Exception("El ID es inválido para actualizar.");
+        }
+
+        validarCodigo(cb); // validación completa
+
+        cbDAO.actualizar(cb);
     }
 
     @Override
     public void eliminar(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        cbDAO.eliminar(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public CodigoBarras getById(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return cbDAO.getById(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
