@@ -36,7 +36,7 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
      * Campos del ResultSet:
      * - CodigoBarras: id, tipo, valor, fechaAsignacion, observacion
      */
-    private static final String SELECT_BY_ID_SQL = "SELECT id, tipo, valor, fechaAsignacion, observacion " +
+    private static final String SELECT_BY_ID_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
             "FROM CodigoBarras " +
             "WHERE id = ? AND eliminado = FALSE";
 

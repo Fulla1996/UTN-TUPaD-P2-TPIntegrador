@@ -29,8 +29,7 @@ public class CodigoBarras extends Base {
         this.tipoCB = TipoCB.valueOf(tipoCB.toUpperCase());
         this.valor = valor;
         this.fecha = fecha;
-        this.observaciones = observaciones;
-        
+        this.observaciones = observaciones;       
     }
 
     /** Constructor por defecto para crear una persona nueva sin ID. */
