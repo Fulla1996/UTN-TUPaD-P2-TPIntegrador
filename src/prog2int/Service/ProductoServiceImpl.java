@@ -5,8 +5,10 @@
 package prog2int.Service;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import prog2int.Config.DatabaseConnection;
+import prog2int.Config.TransactionManager;
 import prog2int.Dao.ProductoDAO;
 import prog2int.Models.CodigoBarras;
 import prog2int.Models.Producto;
@@ -18,7 +20,7 @@ import prog2int.Models.Producto;
 public class ProductoServiceImpl implements GenericService<Producto>{
 
     private final ProductoDAO productoDAO;
-    private final CodigoBarrasServiceImpl codigoBarrasServiceImpl;
+    private final CodigoBarrasServiceImpl cbServiceImpl;
 
     public ProductoServiceImpl(ProductoDAO productoDAO, CodigoBarrasServiceImpl codigoBarrasServiceImpl) {
         if (productoDAO == null) {
@@ -28,7 +30,7 @@ public class ProductoServiceImpl implements GenericService<Producto>{
             throw new IllegalArgumentException("CodigoBarrasServiceImpl no puede ser null");
         }
         this.productoDAO = productoDAO;
-        this.codigoBarrasServiceImpl = codigoBarrasServiceImpl;
+        this.cbServiceImpl = codigoBarrasServiceImpl;
     }
     
     
@@ -69,11 +71,23 @@ public class ProductoServiceImpl implements GenericService<Producto>{
     }
 
     public CodigoBarrasServiceImpl getCodigoBarrasServiceImpl() {
-        return codigoBarrasServiceImpl;
+        return cbServiceImpl;
     }
     
-    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn){
-        
+    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn) throws SQLException{
+        TransactionManager tx = new TransactionManager(conn);
+        tx.startTransaction();
+        try{
+            cbServiceImpl.insertarTx(cb, conn);
+            productoDAO.insertTx(prod, conn);
+            
+            tx.commit();
+            tx.close();
+            
+        }catch (Exception e) {
+                tx.rollback();
+                System.err.println("Error en la transaccion: " + e.getMessage());
+            }
     }
     
 }

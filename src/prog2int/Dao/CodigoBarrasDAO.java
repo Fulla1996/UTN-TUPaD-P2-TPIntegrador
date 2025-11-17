@@ -18,9 +18,9 @@ import prog2int.Models.TipoCB;
  */
 public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
 
-    private static final String INSERT_SQL = "INSERT INTO codigoBarras (id, tipo, valor, fechaAsignacion, observacion) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_SQL = "INSERT INTO codigoBarras (id, tipo, valor, fechaAsignacion, observaciones) VALUES (?, ?, ?, ?, ?)";
 
-    private static final String UPDATE_SQL = "UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observacion = ? WHERE id = ?";
+    private static final String UPDATE_SQL = "UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observaciones = ? WHERE id = ?";
 
     /**
      * Query de soft delete.
@@ -36,17 +36,19 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
      * Campos del ResultSet:
      * - CodigoBarras: id, tipo, valor, fechaAsignacion, observacion
      */
-    private static final String SELECT_BY_ID_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM CodigoBarras " +
-            "WHERE id = ? AND eliminado = FALSE";
+    private static final String SELECT_BY_ID_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb " +
+            "JOIN producto p on p.codigobarras = cb.id " +
+            "WHERE cb.id = ? AND cb.eliminado = FALSE";
 
     /**
      * Query para obtener todos los códigos de barras.
      * Filtra por eliminado=FALSE (solo códigos activos).
      */
-    private static final String SELECT_ALL_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM codigoBarras " +
-            "WHERE eliminado = FALSE";
+    private static final String SELECT_ALL_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb " +
+            "JOIN producto p on p.codigobarras = cb.id " +
+            "WHERE cb.eliminado = FALSE";
 
     /**
      * Query de búsqueda por nombre o apellido con LIKE.
@@ -54,9 +56,10 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
      * Usa % antes y después del filtro: LIKE '%filtro%'
      * Solo personas activas (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_VALOR_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM codigoBarras " +
-            "WHERE eliminado = FALSE AND (valor = ?)";
+    private static final String SEARCH_BY_VALOR_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb " +
+            "JOIN producto p on p.codigobarras = cb.id " +
+            "WHERE cb.eliminado = FALSE AND (cb.valor = ?)";
 
     @Override
     public void insertar(CodigoBarras cb) throws Exception {
@@ -86,6 +89,7 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
             stmt.setString(2, cb.getValor());
             stmt.setDate(3, new java.sql.Date(cb.getFecha().getTime()));
             stmt.setString(4, cb.getObservaciones());
+            stmt.setLong(5, cb.getId());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
@@ -142,8 +146,9 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
         return codigosBarras;
     }
-    /*SEARCH_BY_VALOR_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM codigoBarras " +
+    /*SEARCH_BY_VALOR_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb" +
+            "JOIN producto p on p.codigobarras = cb.id" +
             "WHERE eliminado = FALSE AND (valor LIKE ?)";*/
     public CodigoBarras getByValor(String value) throws SQLException{
         try (Connection conn = DatabaseConnection.getConnection();
@@ -162,11 +167,12 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
     
     public CodigoBarras mapResultSetToCodigoBarras(ResultSet rs) throws SQLException{
         CodigoBarras cb = new CodigoBarras();
-        cb.setId(rs.getInt("id"));
-        cb.setValor(rs.getString("valor"));
-        cb.setFecha(rs.getDate("fechaAsignacion"));
-        cb.setObservaciones("observaciones");
-        cb.setTipoCB(TipoCB.valueOf(rs.getString("tipo")));
+        cb.setId(rs.getInt("cb.id"));
+        cb.setValor(rs.getString("cb.valor"));
+        cb.setFecha(rs.getDate("cb.fechaAsignacion"));
+        cb.setObservaciones(rs.getString("cb.observaciones"));
+        cb.setTipoCB(TipoCB.valueOf(rs.getString("cb.tipo")));
+        cb.setIdProducto(rs.getLong("p.id"));
         
         return cb;
         

@@ -3,6 +3,7 @@ package prog2int.Main;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import prog2int.Config.DatabaseConnection;
 
 import prog2int.Models.CodigoBarras;
 import prog2int.Models.TipoCB;
@@ -103,7 +104,7 @@ public class MenuHandler {
 
             Producto p = new Producto(idP, nombre, marca, categoria, precio, peso, cb);
             
-            
+            productoService.insertarTx(p, cb, DatabaseConnection.getConnection());
 
             System.out.println("✔ Producto creado con éxito.");
         } catch (Exception e) {
@@ -130,6 +131,22 @@ public class MenuHandler {
             }
         } catch (Exception e) {
             System.err.println("Error al buscar producto: " + e.getMessage());
+        }
+    }
+    public void buscarProductoPorId(long id) {
+        try {
+            Producto p = productoService.getById(id);
+            if (p == null) {
+                System.out.println("Producto no encontrado.");
+                return;
+            }
+
+            System.out.println(p);
+            if (p.getCodigoBarras() != null) {
+                System.out.println("   → Código asignado: " + p.getCodigoBarras());
+            }
+        } catch (Exception e) {
+            System.err.println("Error al buscar el codigo de barras: " + e.getMessage());
         }
     }
     
@@ -231,7 +248,7 @@ public class MenuHandler {
                 return;
             }
 
-            System.out.println(cb);
+            buscarProductoPorId(cb.getIdProducto());
         } catch (Exception e) {
             System.err.println("Error al buscar código: " + e.getMessage());
         }
@@ -249,8 +266,9 @@ public class MenuHandler {
                 System.out.println("No se encontró el código.");
                 return;
             }
+            
+             buscarProductoPorId(cb.getIdProducto());
 
-            System.out.println(cb);
         } catch (Exception e) {
             System.err.println("Error al buscar código: " + e.getMessage());
         }
@@ -266,12 +284,6 @@ public class MenuHandler {
             if (cb == null) {
                 System.out.println("Código no encontrado.");
                 return;
-            }
-
-            System.out.print("Nuevo valor (" + cb.getValor() + "): ");
-            String nuevoValor = scanner.nextLine().trim();
-            if (!nuevoValor.isEmpty()) {
-                cb.setValor(nuevoValor);
             }
 
             System.out.print("Observaciones (" + cb.getObservaciones() + "): ");

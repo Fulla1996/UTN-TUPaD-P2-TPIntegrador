@@ -25,7 +25,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
     * Actualiza nombre, apellido, dni y FK domicilio_id por id.
     * NO actualiza el flag eliminado (solo se modifica en soft delete).
     */
-    private static final String UPDATE_SQL = "UPDATE producto SET nombre = ?, marca = ?, categoria = ?, precio = ?, peso = ?, codigoBarras = ? WHERE id = ?";
+    private static final String UPDATE_SQL = "UPDATE producto SET nombre = ?, marca = ?, categoria = ?, precio = ?, peso = ? WHERE id = ?";
 
     /**
      * Query de soft delete.
@@ -44,7 +44,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * - Domicilio (puede ser NULL): dom_id, calle, numero
      */
     private static final String SELECT_BY_ID_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.id = ? AND p.eliminado = FALSE";
 
@@ -54,7 +54,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Filtra por eliminado=FALSE (solo personas activas).
      */
     private static final String SELECT_ALL_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE";
 
@@ -65,7 +65,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Solo personas activas (eliminado=FALSE).
      */
     private static final String SEARCH_BY_NAME_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";
 
@@ -76,7 +76,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Solo personas activas (eliminado=FALSE).
      */
     private static final String SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
+            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";
 
@@ -117,7 +117,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
         }
     }
 
-    //"UPDATE producto SET nombre = ?, marca = ?, categoria = ?, precio = ?, peso = ?, codigoBarras = ? WHERE id = ?";
+    //"UPDATE producto SET nombre = ?, marca = ?, categoria = ?, precio = ?, peso = ? WHERE id = ?";
     @Override
     public void actualizar(Producto prod) throws Exception {
             try (Connection conn = DatabaseConnection.getConnection();
@@ -128,11 +128,11 @@ public class ProductoDAO implements GenericDAO<Producto>{
             stmt.setString(3, prod.getCategoria());
             stmt.setDouble(4, prod.getPrecio());
             stmt.setDouble(5, prod.getPeso());
-            stmt.setLong(6, prod.getCodigoBarras().getId());
+            stmt.setLong(6, prod.getId());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
-                throw new SQLException("No se pudo actualizar el Codigo de Barras con ID: " + prod.getId());
+                throw new SQLException("No se pudo actualizar el Producto con ID: " + prod.getId());
             }
             
         }
@@ -256,11 +256,12 @@ public class ProductoDAO implements GenericDAO<Producto>{
     
     private Producto mapResultSetToProducto(ResultSet rs) throws SQLException {
         Producto producto = new Producto();
-        producto.setId(rs.getInt("id"));
-        producto.setNombre(rs.getString("nombre"));
-        producto.setCategoria(rs.getString("categoria"));
-        producto.setPeso(rs.getDouble("peso"));
-        producto.setPrecio(rs.getDouble("precio"));
+        producto.setId(rs.getInt("p.id"));
+        producto.setNombre(rs.getString("p.nombre"));
+        producto.setMarca(rs.getString("p.marca"));
+        producto.setCategoria(rs.getString("p.categoria"));
+        producto.setPeso(rs.getDouble("p.peso"));
+        producto.setPrecio(rs.getDouble("p.precio"));
         
         // Manejo correcto de LEFT JOIN: verificar si domicilio_id es NULL
         CodigoBarras cb = new CodigoBarras();
@@ -268,7 +269,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
         cb.setTipoCB(TipoCB.valueOf(rs.getString("cb.tipo")));
         cb.setValor(rs.getString("cb.valor"));
         cb.setFecha(rs.getDate("cb.fechaAsignacion"));
-        cb.setObservaciones(rs.getString("cb.observacion"));
+        cb.setObservaciones(rs.getString("cb.observaciones"));
         
         producto.setCodigoBarras(cb);
         

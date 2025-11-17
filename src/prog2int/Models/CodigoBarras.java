@@ -17,7 +17,7 @@ public class CodigoBarras extends Base {
     private String valor, observaciones;
     private Date fecha;
 
-    private Producto producto;
+    private long idProducto;
 
     /**
      * Constructor completo para reconstruir una Persona desde la BD.
@@ -29,7 +29,7 @@ public class CodigoBarras extends Base {
         this.tipoCB = TipoCB.valueOf(tipoCB.toUpperCase());
         this.valor = valor;
         this.fecha = fecha;
-        this.observaciones = observaciones;       
+        this.observaciones = observaciones;
     }
 
     /** Constructor por defecto para crear una persona nueva sin ID. */
@@ -69,17 +69,19 @@ public class CodigoBarras extends Base {
         this.observaciones = observaciones;
     }
 
-    public Producto getProducto() {
-        return producto;
+    public long getIdProducto() {
+        return idProducto;
     }
 
-    public void setProducto(Producto producto) {
-        this.producto = producto;
+    public void setIdProducto(long idProducto) {
+        this.idProducto = idProducto;
     }
+
+
 
     @Override
     public String toString() {
-        return "CodigoBarras{" + "tipoCB=" + tipoCB + ", valor=" + valor + ", fecha=" + fecha + ", observaciones=" + observaciones + ", producto=" + producto + '}';
+        return "CodigoBarras{" + "tipoCB=" + tipoCB + ", valor=" + valor + ", fecha=" + fecha + ", observaciones=" + observaciones + '}';
     }
 
     @Override

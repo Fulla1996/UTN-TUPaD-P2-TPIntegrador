@@ -4,6 +4,7 @@
  */
 package prog2int.Service;
 
+import java.sql.Connection;
 import java.util.List;
 import prog2int.Dao.CodigoBarrasDAO;
 import prog2int.Models.CodigoBarras;
@@ -50,6 +51,10 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
     @Override
     public List<CodigoBarras> getAll()  throws Exception {
         return cbDAO.getAll();
+    }
+    
+    public void insertarTx(CodigoBarras cb, Connection conn) throws Exception{
+        cbDAO.insertTx(cb, conn);
     }
     
 }

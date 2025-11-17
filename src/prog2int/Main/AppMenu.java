@@ -51,7 +51,7 @@ public class AppMenu {
             // ---- CODIGOS DE BARRA ----
             case 8 -> menuHandler.listarCodigo();        // "Listar Codigos de Barra"
             case 9 -> menuHandler.buscarCodigoPorId();   // "Buscar Codigo de Barra por ID"
-            // case 10 -> menuHandler.buscarCodigoPorValor();
+            case 10 -> menuHandler.buscarCodigoBarrasPorValor(); //Busca Codigo de Barras por Valor
             case 11 -> menuHandler.actualizarCodigo();   // "Agregar observaciones / editar código"
             // ---- SALIR ----
             case 0 -> {
