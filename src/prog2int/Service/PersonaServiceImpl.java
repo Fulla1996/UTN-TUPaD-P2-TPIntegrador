@@ -111,7 +111,7 @@ public class PersonaServiceImpl implements GenericService<Persona> {
         if (persona.getId() <= 0) {
             throw new IllegalArgumentException("El ID de la persona debe ser mayor a 0 para actualizar");
         }
-        validateDniUnique(persona.getDni(), persona.getId());
+        //validateDniUnique(persona.getDni(), persona.getId());
         personaDAO.actualizar(persona);
     }
 
@@ -127,11 +127,11 @@ public class PersonaServiceImpl implements GenericService<Persona> {
      * @throws Exception Si id <= 0 o no existe la persona
      */
     @Override
-    public void eliminar(int id) throws Exception {
+    public void eliminar(long id) throws Exception {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor a 0");
         }
-        personaDAO.eliminar(id);
+        personaDAO.eliminar((int)id);
     }
 
     /**
@@ -143,11 +143,11 @@ public class PersonaServiceImpl implements GenericService<Persona> {
      * @throws Exception Si id <= 0 o hay error de BD
      */
     @Override
-    public Persona getById(int id) throws Exception {
+    public Persona getById(long id) throws Exception {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor a 0");
         }
-        return personaDAO.getById(id);
+        return personaDAO.getById((int)id);
     }
 
     /**

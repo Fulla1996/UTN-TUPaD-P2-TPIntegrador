@@ -1,10 +1,16 @@
 package prog2int.Main;
 
-import prog2int.Models.Persona;
+
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import prog2int.Models.Domicilio;
-import prog2int.Service.PersonaServiceImpl;
+
+import prog2int.Models.CodigoBarras;
+import prog2int.Models.TipoCB;
+import prog2int.Models.Producto;
+import prog2int.Service.CodigoBarrasServiceImpl;
+import prog2int.Service.ProductoServiceImpl;
 
 /**
  * Controlador de las operaciones del menú (Menu Handler).
@@ -34,7 +40,8 @@ public class MenuHandler {
      * Servicio de personas para operaciones CRUD.
      * También proporciona acceso a DomicilioService mediante getDomicilioService().
      */
-    private final PersonaServiceImpl personaService;
+    private final ProductoServiceImpl productoService;
+    private final CodigoBarrasServiceImpl cbService;
 
     /**
      * Constructor con inyección de dependencias.
@@ -44,15 +51,19 @@ public class MenuHandler {
      * @param personaService Servicio de personas
      * @throws IllegalArgumentException si alguna dependencia es null
      */
-    public MenuHandler(Scanner scanner, PersonaServiceImpl personaService) {
-        if (scanner == null) {
+    public MenuHandler(Scanner scanner, ProductoServiceImpl productoService, CodigoBarrasServiceImpl cbService) {
+        if (scanner == null ) {
             throw new IllegalArgumentException("Scanner no puede ser null");
         }
-        if (personaService == null) {
-            throw new IllegalArgumentException("PersonaService no puede ser null");
+        if (productoService == null) {
+            throw new IllegalArgumentException("ProductoService no puede ser null");
+        }
+        if (cbService == null){
+            throw new IllegalArgumentException("CodigoBarrasService no puede ser null");
         }
         this.scanner = scanner;
-        this.personaService = personaService;
+        this.productoService = productoService;
+        this.cbService = cbService;
     }
 
     /**
@@ -76,30 +87,50 @@ public class MenuHandler {
      * - SQLException: Errores de BD (muestra mensaje al usuario)
      * - Todos los errores se capturan y muestran, NO se propagan al menú principal
      */
-    public void crearPersona() {
+    public void crearCodigo() {
         try {
-            System.out.print("Nombre: ");
-            String nombre = scanner.nextLine().trim();
-            System.out.print("Apellido: ");
-            String apellido = scanner.nextLine().trim();
-            System.out.print("DNI: ");
-            String dni = scanner.nextLine().trim();
+            System.out.println("\n--- Crear Código de Barras ---");
 
-            Domicilio domicilio = null;
-            System.out.print("¿Desea agregar un domicilio? (s/n): ");
-            if (scanner.nextLine().equalsIgnoreCase("s")) {
-                domicilio = crearDomicilio();
-            }
+            System.out.print("ID: ");
+            long id = Long.parseLong(scanner.nextLine());
 
-            Persona persona = new Persona(0, nombre, apellido, dni);
-            persona.setDomicilio(domicilio);
-            personaService.insertar(persona);
-            System.out.println("Persona creada exitosamente con ID: " + persona.getId());
+            System.out.print("Tipo (EAN13/EAN8/UPC): ");
+            String tipoInput = scanner.nextLine().trim().toUpperCase();
+            TipoCB tipo = TipoCB.valueOf(tipoInput);
+
+            System.out.print("Valor: ");
+            String valor = scanner.nextLine().trim();
+
+            System.out.print("Observaciones: ");
+            String obs = scanner.nextLine().trim();
+
+            CodigoBarras cb = new CodigoBarras(id, tipo.name(), valor, new Date(), obs);
+            cbService.insertar(cb);
+
+            System.out.println("✔ Código de barras creado con éxito.");
+
         } catch (Exception e) {
-            System.err.println("Error al crear persona: " + e.getMessage());
+            System.err.println("Error al crear código: " + e.getMessage());
         }
     }
 
+    public void buscarCodigoPorId() {
+        try {
+            System.out.print("ID a buscar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            CodigoBarras cb = cbService.getById(id);
+            if (cb == null) {
+                System.out.println("No se encontró el código.");
+                return;
+            }
+            System.out.println(cb);
+
+        } catch (Exception e) {
+            System.err.println("Error al buscar código: " + e.getMessage());
+        }
+    }
+    
     /**
      * Opción 2: Listar personas (todas o filtradas por nombre/apellido).
      *
@@ -120,38 +151,17 @@ public class MenuHandler {
      * - Insensible a mayúsculas en MySQL (depende de collation)
      * - Busca en nombre O apellido
      */
-    public void listarPersonas() {
+    public void listarCodigo() {
         try {
-            System.out.print("¿Desea (1) listar todos o (2) buscar por nombre/apellido? Ingrese opcion: ");
-            int subopcion = Integer.parseInt(scanner.nextLine());
-
-            List<Persona> personas;
-            if (subopcion == 1) {
-                personas = personaService.getAll();
-            } else if (subopcion == 2) {
-                System.out.print("Ingrese texto a buscar: ");
-                String filtro = scanner.nextLine().trim();
-                personas = personaService.buscarPorNombreApellido(filtro);
-            } else {
-                System.out.println("Opcion invalida.");
+            List<CodigoBarras> lista = cbService.getAll();
+            if (lista.isEmpty()) {
+                System.out.println("No hay códigos cargados.");
                 return;
             }
+            lista.forEach(System.out::println);
 
-            if (personas.isEmpty()) {
-                System.out.println("No se encontraron personas.");
-                return;
-            }
-
-            for (Persona p : personas) {
-                System.out.println("ID: " + p.getId() + ", Nombre: " + p.getNombre() +
-                        ", Apellido: " + p.getApellido() + ", DNI: " + p.getDni());
-                if (p.getDomicilio() != null) {
-                    System.out.println("   Domicilio: " + p.getDomicilio().getCalle() +
-                            " " + p.getDomicilio().getNumero());
-                }
-            }
         } catch (Exception e) {
-            System.err.println("Error al listar personas: " + e.getMessage());
+            System.err.println("Error al listar códigos: " + e.getMessage());
         }
     }
 
@@ -181,40 +191,31 @@ public class MenuHandler {
      * - Agregar nuevo domicilio si la persona no tenía
      * - Dejar domicilio sin cambios
      */
-    public void actualizarPersona() {
+    public void actualizarCodigo() {
         try {
-            System.out.print("ID de la persona a actualizar: ");
-            int id = Integer.parseInt(scanner.nextLine());
-            Persona p = personaService.getById(id);
+            System.out.print("ID del código a actualizar: ");
+            long id = Long.parseLong(scanner.nextLine());
 
-            if (p == null) {
-                System.out.println("Persona no encontrada.");
+            CodigoBarras cb = cbService.getById(id);
+            if (cb == null) {
+                System.out.println("Código no encontrado.");
                 return;
             }
 
-            System.out.print("Nuevo nombre (actual: " + p.getNombre() + ", Enter para mantener): ");
-            String nombre = scanner.nextLine().trim();
-            if (!nombre.isEmpty()) {
-                p.setNombre(nombre);
-            }
+            // Mantener valor si usuario presiona Enter
+            System.out.print("Nuevo valor (" + cb.getValor() + "): ");
+            String nuevoValor = scanner.nextLine().trim();
+            if (!nuevoValor.isEmpty()) cb.setValor(nuevoValor);
 
-            System.out.print("Nuevo apellido (actual: " + p.getApellido() + ", Enter para mantener): ");
-            String apellido = scanner.nextLine().trim();
-            if (!apellido.isEmpty()) {
-                p.setApellido(apellido);
-            }
+            System.out.print("Observaciones (" + cb.getObservaciones() + "): ");
+            String obs = scanner.nextLine().trim();
+            if (!obs.isEmpty()) cb.setObservaciones(obs);
 
-            System.out.print("Nuevo DNI (actual: " + p.getDni() + ", Enter para mantener): ");
-            String dni = scanner.nextLine().trim();
-            if (!dni.isEmpty()) {
-                p.setDni(dni);
-            }
+            cbService.actualizar(cb);
+            System.out.println("✔ Código actualizado.");
 
-            actualizarDomicilioDePersona(p);
-            personaService.actualizar(p);
-            System.out.println("Persona actualizada exitosamente.");
         } catch (Exception e) {
-            System.err.println("Error al actualizar persona: " + e.getMessage());
+            System.err.println("Error al actualizar código: " + e.getMessage());
         }
     }
 
@@ -235,14 +236,16 @@ public class MenuHandler {
      * - Usar opción 10: "Eliminar domicilio de una persona" (eliminarDomicilioPorPersona)
      * - Esa opción primero desasocia el domicilio, luego lo elimina (seguro)
      */
-    public void eliminarPersona() {
+    public void eliminarCodigo() {
         try {
-            System.out.print("ID de la persona a eliminar: ");
-            int id = Integer.parseInt(scanner.nextLine());
-            personaService.eliminar(id);
-            System.out.println("Persona eliminada exitosamente.");
+            System.out.print("ID del código a eliminar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            cbService.eliminar(id);
+            System.out.println("✔ Código eliminado (lógico).");
+
         } catch (Exception e) {
-            System.err.println("Error al eliminar persona: " + e.getMessage());
+            System.err.println("Error al eliminar código: " + e.getMessage());
         }
     }
 
@@ -260,16 +263,63 @@ public class MenuHandler {
      * - Crear domicilio que luego se asignará a varias personas (opción 7)
      * - Pre-cargar domicilios en la BD
      */
-    public void crearDomicilioIndependiente() {
+   public void crearProducto() {
         try {
-            Domicilio domicilio = crearDomicilio();
-            personaService.getDomicilioService().insertar(domicilio);
-            System.out.println("Domicilio creado exitosamente con ID: " + domicilio.getId());
+            System.out.println("\n--- Crear Producto ---");
+            System.out.print("ID: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            System.out.print("Nombre: ");
+            String nombre = scanner.nextLine().trim();
+
+            System.out.print("Marca: ");
+            String marca = scanner.nextLine().trim();
+
+            System.out.print("Categoría: ");
+            String categoria = scanner.nextLine().trim();
+
+            System.out.print("Precio: ");
+            double precio = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Peso: ");
+            double peso = Double.parseDouble(scanner.nextLine());
+
+            ///Completar ingreso de información de codigo de barras
+            System.out.println("CodigoBarras");
+            CodigoBarras cb = new CodigoBarras();
+            
+            
+            Producto p = new Producto(id, nombre, marca, categoria, precio, peso, cb);
+            productoService.insertar(p);
+
+            System.out.println("✔ Producto creado con éxito.");
+
         } catch (Exception e) {
-            System.err.println("Error al crear domicilio: " + e.getMessage());
+            System.err.println("Error al crear producto: " + e.getMessage());
         }
     }
 
+   public void buscarProductoPorId() {
+        try {
+            System.out.print("ID: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            Producto p = productoService.getById(id);
+            if (p == null) {
+                System.out.println("Producto no encontrado.");
+                return;
+            }
+
+            System.out.println(p);
+            if (p.getCodigoBarras() != null) {
+                System.out.println("   → Código asignado: " + p.getCodigoBarras());
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error al buscar producto: " + e.getMessage());
+        }
+    }
+   
     /**
      * Opción 6: Listar todos los domicilios activos.
      *
@@ -281,18 +331,23 @@ public class MenuHandler {
      *
      * Nota: Solo muestra domicilios con eliminado=FALSE (soft delete).
      */
-    public void listarDomicilios() {
+    public void listarProductos() {
         try {
-            List<Domicilio> domicilios = personaService.getDomicilioService().getAll();
-            if (domicilios.isEmpty()) {
-                System.out.println("No se encontraron domicilios.");
+            List<Producto> lista = productoService.getAll();
+            if (lista.isEmpty()) {
+                System.out.println("No hay productos cargados.");
                 return;
             }
-            for (Domicilio d : domicilios) {
-                System.out.println("ID: " + d.getId() + ", " + d.getCalle() + " " + d.getNumero());
-            }
+
+            lista.forEach(p -> {
+                System.out.println(p);
+                if (p.getCodigoBarras() != null) {
+                    System.out.println("   → Código: " + p.getCodigoBarras().getValor());
+                }
+            });
+
         } catch (Exception e) {
-            System.err.println("Error al listar domicilios: " + e.getMessage());
+            System.err.println("Error al listar productos: " + e.getMessage());
         }
     }
 
@@ -319,33 +374,42 @@ public class MenuHandler {
      * 1. Crear nuevo domicilio (opción 5)
      * 2. Asignar a la persona (opción 7)
      */
-    public void actualizarDomicilioPorId() {
+    public void actualizarProducto() {
         try {
-            System.out.print("ID del domicilio a actualizar: ");
-            int id = Integer.parseInt(scanner.nextLine());
-            Domicilio d = personaService.getDomicilioService().getById(id);
+            System.out.print("ID del producto a actualizar: ");
+            long id = Long.parseLong(scanner.nextLine());
 
-            if (d == null) {
-                System.out.println("Domicilio no encontrado.");
+            Producto p = productoService.getById(id);
+            if (p == null) {
+                System.out.println("Producto no encontrado.");
                 return;
             }
 
-            System.out.print("Nueva calle (actual: " + d.getCalle() + ", Enter para mantener): ");
-            String calle = scanner.nextLine().trim();
-            if (!calle.isEmpty()) {
-                d.setCalle(calle);
-            }
+            System.out.print("Nuevo nombre (" + p.getNombre() + "): ");
+            String nombre = scanner.nextLine().trim();
+            if (!nombre.isEmpty()) p.setNombre(nombre);
 
-            System.out.print("Nuevo numero (actual: " + d.getNumero() + ", Enter para mantener): ");
-            String numero = scanner.nextLine().trim();
-            if (!numero.isEmpty()) {
-                d.setNumero(numero);
-            }
+            System.out.print("Nueva marca (" + p.getMarca() + "): ");
+            String marca = scanner.nextLine().trim();
+            if (!marca.isEmpty()) p.setMarca(marca);
 
-            personaService.getDomicilioService().actualizar(d);
-            System.out.println("Domicilio actualizado exitosamente.");
+            System.out.print("Nueva categoría (" + p.getCategoria() + "): ");
+            String cat = scanner.nextLine().trim();
+            if (!cat.isEmpty()) p.setCategoria(cat);
+
+            System.out.print("Nuevo precio (" + p.getPrecio() + "): ");
+            String precioIn = scanner.nextLine().trim();
+            if (!precioIn.isEmpty()) p.setPrecio(Double.parseDouble(precioIn));
+
+            System.out.print("Nuevo peso (" + p.getPeso() + "): ");
+            String pesoIn = scanner.nextLine().trim();
+            if (!pesoIn.isEmpty()) p.setPeso(Double.parseDouble(pesoIn));
+
+            productoService.actualizar(p);
+            System.out.println("✔ Producto actualizado.");
+
         } catch (Exception e) {
-            System.err.println("Error al actualizar domicilio: " + e.getMessage());
+            System.err.println("Error al actualizar producto: " + e.getMessage());
         }
     }
 
@@ -373,14 +437,16 @@ public class MenuHandler {
      * - Cuando se está seguro de que el domicilio NO tiene personas asociadas
      * - Limpiar domicilios creados por error
      */
-    public void eliminarDomicilioPorId() {
+    public void eliminarProducto() {
         try {
-            System.out.print("ID del domicilio a eliminar: ");
-            int id = Integer.parseInt(scanner.nextLine());
-            personaService.getDomicilioService().eliminar(id);
-            System.out.println("Domicilio eliminado exitosamente.");
+            System.out.print("ID del producto: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            productoService.eliminar(id);
+            System.out.println("✔ Producto eliminado (lógico).");
+
         } catch (Exception e) {
-            System.err.println("Error al eliminar domicilio: " + e.getMessage());
+            System.err.println("Error al eliminar producto: " + e.getMessage());
         }
     }
 
@@ -404,8 +470,8 @@ public class MenuHandler {
      * Ambas tienen el mismo efecto (RN-040): afectan a TODAS las personas
      * que comparten el domicilio.
      */
-    public void actualizarDomicilioPorPersona() {
-        try {
+     // public void actualizarDomicilioPorPersona() {
+        /*try {
             System.out.print("ID de la persona cuyo domicilio desea actualizar: ");
             int personaId = Integer.parseInt(scanner.nextLine());
             Persona p = personaService.getById(personaId);
@@ -437,8 +503,7 @@ public class MenuHandler {
             System.out.println("Domicilio actualizado exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al actualizar domicilio: " + e.getMessage());
-        }
-    }
+        }*/
 
     /**
      * Opción 10: Eliminar domicilio de una persona (MÉTODO SEGURO - RN-029 solucionado).
@@ -458,8 +523,8 @@ public class MenuHandler {
      *
      * Este es el método RECOMENDADO para eliminar domicilios en producción.
      */
-    public void eliminarDomicilioPorPersona() {
-        try {
+    // public void eliminarDomicilioPorPersona() {
+        /*try {
             System.out.print("ID de la persona cuyo domicilio desea eliminar: ");
             int personaId = Integer.parseInt(scanner.nextLine());
             Persona p = personaService.getById(personaId);
@@ -479,8 +544,8 @@ public class MenuHandler {
             System.out.println("Domicilio eliminado exitosamente y referencia actualizada.");
         } catch (Exception e) {
             System.err.println("Error al eliminar domicilio: " + e.getMessage());
-        }
-    }
+        }*/
+    
 
     /**
      * Método auxiliar privado: Crea un objeto Domicilio capturando calle y número.
@@ -500,14 +565,6 @@ public class MenuHandler {
      *
      * @return Domicilio nuevo (no persistido, ID=0)
      */
-    private Domicilio crearDomicilio() {
-        System.out.print("Calle: ");
-        String calle = scanner.nextLine().trim();
-        System.out.print("Numero: ");
-        String numero = scanner.nextLine().trim();
-        return new Domicilio(0, calle, numero);
-    }
-
     /**
      * Método auxiliar privado: Maneja actualización de domicilio dentro de actualizar persona.
      *
@@ -531,8 +588,8 @@ public class MenuHandler {
      * @param p Persona a la que se le actualizará/agregará domicilio
      * @throws Exception Si hay error al insertar/actualizar domicilio
      */
-    private void actualizarDomicilioDePersona(Persona p) throws Exception {
-        if (p.getDomicilio() != null) {
+    // private void actualizarDomicilioDePersona(Persona p) throws Exception {
+        /*if (p.getDomicilio() != null) {
             System.out.print("¿Desea actualizar el domicilio? (s/n): ");
             if (scanner.nextLine().equalsIgnoreCase("s")) {
                 System.out.print("Nueva calle (" + p.getDomicilio().getCalle() + "): ");
@@ -556,6 +613,6 @@ public class MenuHandler {
                 personaService.getDomicilioService().insertar(nuevoDom);
                 p.setDomicilio(nuevoDom);
             }
-        }
-    }
+        }*/
+    
 }

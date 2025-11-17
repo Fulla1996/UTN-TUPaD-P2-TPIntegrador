@@ -147,7 +147,7 @@ public class DomicilioDAO implements GenericDAO<Domicilio> {
 
             stmt.setString(1, domicilio.getCalle());
             stmt.setString(2, domicilio.getNumero());
-            stmt.setInt(3, domicilio.getId());
+            stmt.setLong(3, domicilio.getId());
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {
@@ -184,11 +184,11 @@ public class DomicilioDAO implements GenericDAO<Domicilio> {
      * @throws SQLException Si el domicilio no existe o hay error de BD
      */
     @Override
-    public void eliminar(int id) throws SQLException {
+    public void eliminar(long id) throws SQLException {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
 
-            stmt.setInt(1, id);
+            stmt.setInt(1, (int)id);
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected == 0) {
@@ -206,11 +206,11 @@ public class DomicilioDAO implements GenericDAO<Domicilio> {
      * @throws SQLException Si hay error de BD
      */
     @Override
-    public Domicilio getById(int id) throws SQLException {
+    public Domicilio getById(long id) throws SQLException {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
 
-            stmt.setInt(1, id);
+            stmt.setInt(1, (int)id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {

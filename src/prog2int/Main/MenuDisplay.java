@@ -42,18 +42,24 @@ public class MenuDisplay {
      * Nota: Los números de opción corresponden al switch en AppMenu.processOption().
      */
     public static void mostrarMenuPrincipal() {
-        System.out.println("\n========= MENU =========");
-        System.out.println("1. Crear persona");
-        System.out.println("2. Listar personas");
-        System.out.println("3. Actualizar persona");
-        System.out.println("4. Eliminar persona");
-        System.out.println("5. Crear domicilio");
-        System.out.println("6. Listar domicilios");
-        System.out.println("7. Actualizar domicilio por ID");
-        System.out.println("8. Eliminar domicilio por ID");
-        System.out.println("9. Actualizar domicilio por ID de persona");
-        System.out.println("10. Eliminar domicilio por ID de persona");
+        System.out.println("\n========= MENU PRINCIPAL =========");
+        
+        System.out.println("---- PRODUCTOS ----");
+        System.out.println("1. Listar Productos");
+        System.out.println("2. Crear Producto");
+        System.out.println("3. Buscar Producto por ID");
+        System.out.println("4. Buscar Producto por Nombre");
+        System.out.println("5. Buscar Producto por Categoria");
+        System.out.println("6. Editar Producto");
+        System.out.println("7. Eliminar Producto");
+        
+        System.out.println("---- CODIGOS DE BARRA ----");
+        System.out.println("8. Listar Codigos de Barra");
+        System.out.println("9. Buscar Codigo de Barra por ID");
+        System.out.println("10. Buscar Codigo de Barra por Valor");
+        System.out.println("11. Agregar observaciones a Codigo de Barra.");
+        
         System.out.println("0. Salir");
-        System.out.print("Ingrese una opcion: ");
+        System.out.print("Ingrese una opción: ");
     }
 }

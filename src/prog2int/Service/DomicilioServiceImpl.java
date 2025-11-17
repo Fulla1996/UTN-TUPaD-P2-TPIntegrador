@@ -91,11 +91,11 @@ public class DomicilioServiceImpl implements GenericService<Domicilio> {
      * @throws Exception Si id <= 0 o no existe el domicilio
      */
     @Override
-    public void eliminar(int id) throws Exception {
+    public void eliminar(long id) throws Exception {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor a 0");
         }
-        domicilioDAO.eliminar(id);
+        domicilioDAO.eliminar((int)id);
     }
 
     /**
@@ -106,11 +106,11 @@ public class DomicilioServiceImpl implements GenericService<Domicilio> {
      * @throws Exception Si id <= 0 o hay error de BD
      */
     @Override
-    public Domicilio getById(int id) throws Exception {
+    public Domicilio getById(long id) throws Exception {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor a 0");
         }
-        return domicilioDAO.getById(id);
+        return domicilioDAO.getById((int)id);
     }
 
     /**
