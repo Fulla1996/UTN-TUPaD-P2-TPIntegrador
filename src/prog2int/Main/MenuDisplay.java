@@ -49,7 +49,7 @@ public class MenuDisplay {
         System.out.println("2. Crear Producto");
         System.out.println("3. Buscar Producto por ID");
         System.out.println("4. Buscar Producto por Nombre");
-        System.out.println("5. Buscar Producto por Categoria");
+        System.out.println("5. Buscar Producto por Marca");
         System.out.println("6. Editar Producto");
         System.out.println("7. Eliminar Producto");
         

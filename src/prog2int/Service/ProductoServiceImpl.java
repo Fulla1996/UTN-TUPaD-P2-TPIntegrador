@@ -56,6 +56,14 @@ public class ProductoServiceImpl implements GenericService<Producto>{
     public List getAll() throws Exception {
         return productoDAO.getAll();
     }
+    
+    public List getByName(String name) throws Exception{
+        return productoDAO.getListByName(name);
+    }
+    
+    public List getByBrand(String brand) throws Exception{
+        return productoDAO.getListByBrand(brand);
+    }
 
     public CodigoBarrasServiceImpl getCodigoBarrasServiceImpl() {
         return codigoBarrasServiceImpl;

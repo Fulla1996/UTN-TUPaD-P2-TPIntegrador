@@ -192,7 +192,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";*/
 
-    private List<Producto> getListByName(String name) throws Exception{
+    public List<Producto> getListByName(String name) throws Exception{
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
         }
@@ -220,7 +220,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";*/
     
-        private List<Producto> getListByBrand(String brand) throws Exception{
+        public List<Producto> getListByBrand(String brand) throws Exception{
         if (brand == null || brand.trim().isEmpty()) {
             throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
         }

@@ -42,6 +42,10 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
     public CodigoBarras getById(long id) throws Exception {
         return cbDAO.getById(id);
     }
+    
+    public CodigoBarras getByName(String valor) throws Exception{
+        return cbDAO.getByValor(valor);
+    }
 
     @Override
     public List<CodigoBarras> getAll()  throws Exception {

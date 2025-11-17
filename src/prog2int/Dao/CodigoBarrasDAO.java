@@ -56,7 +56,7 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
      */
     private static final String SEARCH_BY_VALOR_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
             "FROM codigoBarras " +
-            "WHERE eliminado = FALSE AND (valor LIKE ?)";
+            "WHERE eliminado = FALSE AND (valor = ?)";
 
     @Override
     public void insertar(CodigoBarras cb) throws Exception {

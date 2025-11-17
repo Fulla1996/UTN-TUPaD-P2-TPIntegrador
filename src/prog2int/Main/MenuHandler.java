@@ -30,107 +30,28 @@ public class MenuHandler {
         this.productoService = productoService;
         this.cbService = cbService;
     }
-    // --- CÓDIGO DE BARRAS 
-
-    public void crearCodigo() {
+    
+    // Opcion 1
+        public void listarProductos() {
         try {
-            System.out.println("\n--- Crear Código de Barras ---");
-            System.out.print("ID: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            System.out.print("Tipo (EAN13/EAN8/UPC): ");
-            String tipo = scanner.nextLine().trim().toUpperCase();
-
-            System.out.print("Valor: ");
-            String valor = scanner.nextLine().trim();
-
-            System.out.print("Observaciones: ");
-            String obs = scanner.nextLine().trim();
-
-            CodigoBarras cb = new CodigoBarras(id, tipo, valor, new Date(), obs);
-            cbService.insertar(cb);
-
-            System.out.println("✔ Código de barras creado con éxito.");
-        } catch (Exception e) {
-            System.err.println("Error al crear código: " + e.getMessage());
-        }
-    }
-
-    public void buscarCodigoPorId() {
-        try {
-            System.out.print("ID a buscar: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            CodigoBarras cb = cbService.getById(id);
-            if (cb == null) {
-                System.out.println("No se encontró el código.");
-                return;
-            }
-
-            System.out.println(cb);
-        } catch (Exception e) {
-            System.err.println("Error al buscar código: " + e.getMessage());
-        }
-    }
-
-    public void listarCodigo() {
-        try {
-            List<CodigoBarras> lista = cbService.getAll();
+            List<Producto> lista = productoService.getAll();
             if (lista.isEmpty()) {
-                System.out.println("No hay códigos cargados.");
+                System.out.println("No hay productos cargados.");
                 return;
             }
 
-            lista.forEach(System.out::println);
+            lista.forEach(p -> {
+                System.out.println(p);
+                if (p.getCodigoBarras() != null) {
+                    System.out.println("   → Código: " + p.getCodigoBarras().getValor());
+                }
+            });
         } catch (Exception e) {
-            System.err.println("Error al listar códigos: " + e.getMessage());
+            System.err.println("Error al listar productos: " + e.getMessage());
         }
     }
-
-    public void actualizarCodigo() {
-        try {
-            System.out.print("ID del código a actualizar: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            CodigoBarras cb = cbService.getById(id);
-            if (cb == null) {
-                System.out.println("Código no encontrado.");
-                return;
-            }
-
-            System.out.print("Nuevo valor (" + cb.getValor() + "): ");
-            String nuevoValor = scanner.nextLine().trim();
-            if (!nuevoValor.isEmpty()) {
-                cb.setValor(nuevoValor);
-            }
-
-            System.out.print("Observaciones (" + cb.getObservaciones() + "): ");
-            String obs = scanner.nextLine().trim();
-            if (!obs.isEmpty()) {
-                cb.setObservaciones(obs);
-            }
-
-            cbService.actualizar(cb);
-            System.out.println("✔ Código actualizado.");
-        } catch (Exception e) {
-            System.err.println("Error al actualizar código: " + e.getMessage());
-        }
-    }
-
-    public void eliminarCodigo() {
-        try {
-            System.out.print("ID del código a eliminar: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            cbService.eliminar(id);
-            System.out.println("✔ Código eliminado (lógico).");
-        } catch (Exception e) {
-            System.err.println("Error al eliminar código: " + e.getMessage());
-        }
-    }
-
-    // --- PRODUCTOS 
-
+    
+    //Opcion 2
     public void crearProducto() {
         try {
             System.out.println("\n--- Crear Producto ---");
@@ -165,7 +86,9 @@ public class MenuHandler {
             System.err.println("Error al crear producto: " + e.getMessage());
         }
     }
-
+    
+    //Opcion 3
+        
     public void buscarProductoPorId() {
         try {
             System.out.print("ID: ");
@@ -185,25 +108,162 @@ public class MenuHandler {
             System.err.println("Error al buscar producto: " + e.getMessage());
         }
     }
-
-    public void listarProductos() {
+    
+    //Opcion 4
+     public void buscarCodigoPorNombre() {
         try {
-            List<Producto> lista = productoService.getAll();
-            if (lista.isEmpty()) {
-                System.out.println("No hay productos cargados.");
+            System.out.print("Nombre de producto a buscar: ");
+            String nombre = scanner.nextLine();
+
+            CodigoBarras cb = cbService.getByName(nombre);
+            if (cb == null) {
+                System.out.println("No se encontró el código.");
                 return;
             }
 
-            lista.forEach(p -> {
-                System.out.println(p);
-                if (p.getCodigoBarras() != null) {
-                    System.out.println("   → Código: " + p.getCodigoBarras().getValor());
-                }
-            });
+            System.out.println(cb);
         } catch (Exception e) {
-            System.err.println("Error al listar productos: " + e.getMessage());
+            System.err.println("Error al buscar código: " + e.getMessage());
         }
     }
+    
+    //Opcion 5
+     public void buscarProductoPorNombre(){
+         
+     }
+     //Opcion 6
+     public void buscarProductoPorMarca(){
+         
+     }
+     
+     //Option 7
+     public void eliminarProducto() {
+        try {
+            System.out.print("ID del producto: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            productoService.eliminar(id);
+            System.out.println("✔ Producto eliminado (lógico).");
+        } catch (Exception e) {
+            System.err.println("Error al eliminar producto: " + e.getMessage());
+        }
+    }
+     
+     // opcion 8
+     public void listarCodigo() {
+        try {
+            List<CodigoBarras> lista = cbService.getAll();
+            if (lista.isEmpty()) {
+                System.out.println("No hay códigos cargados.");
+                return;
+            }
+
+            lista.forEach(System.out::println);
+        } catch (Exception e) {
+            System.err.println("Error al listar códigos: " + e.getMessage());
+        }
+    }
+     
+     //Opcion 9
+     public void buscarCodigoPorId() {
+        try {
+            System.out.print("ID a buscar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            CodigoBarras cb = cbService.getById(id);
+            if (cb == null) {
+                System.out.println("No se encontró el código.");
+                return;
+            }
+
+            System.out.println(cb);
+        } catch (Exception e) {
+            System.err.println("Error al buscar código: " + e.getMessage());
+        }
+    }
+     
+     //Opcion 10
+     
+     public void buscarCodigoBarrasPorValor(){
+         
+     }
+     
+     //Opcion 11
+     public void actualizarCodigo() {
+        try {
+            System.out.print("ID del código a actualizar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            CodigoBarras cb = cbService.getById(id);
+            if (cb == null) {
+                System.out.println("Código no encontrado.");
+                return;
+            }
+
+            System.out.print("Nuevo valor (" + cb.getValor() + "): ");
+            String nuevoValor = scanner.nextLine().trim();
+            if (!nuevoValor.isEmpty()) {
+                cb.setValor(nuevoValor);
+            }
+
+            System.out.print("Observaciones (" + cb.getObservaciones() + "): ");
+            String obs = scanner.nextLine().trim();
+            if (!obs.isEmpty()) {
+                cb.setObservaciones(obs);
+            }
+
+            cbService.actualizar(cb);
+            System.out.println("✔ Código actualizado.");
+        } catch (Exception e) {
+            System.err.println("Error al actualizar código: " + e.getMessage());
+        }
+    }
+     
+    // --- CÓDIGO DE BARRAS 
+
+    public void crearCodigo() {
+        try {
+            System.out.println("\n--- Crear Código de Barras ---");
+            System.out.print("ID: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            System.out.print("Tipo (EAN13/EAN8/UPC): ");
+            String tipo = scanner.nextLine().trim().toUpperCase();
+
+            System.out.print("Valor: ");
+            String valor = scanner.nextLine().trim();
+
+            System.out.print("Observaciones: ");
+            String obs = scanner.nextLine().trim();
+
+            CodigoBarras cb = new CodigoBarras(id, tipo, valor, new Date(), obs);
+            cbService.insertar(cb);
+
+            System.out.println("✔ Código de barras creado con éxito.");
+        } catch (Exception e) {
+            System.err.println("Error al crear código: " + e.getMessage());
+        }
+    }
+
+    public void eliminarCodigo() {
+        try {
+            System.out.print("ID del código a eliminar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            cbService.eliminar(id);
+            System.out.println("✔ Código eliminado (lógico).");
+        } catch (Exception e) {
+            System.err.println("Error al eliminar código: " + e.getMessage());
+        }
+    }
+
+    // --- PRODUCTOS 
+
+    
+
+    
+
+
 
     public void actualizarProducto() {
         try {
@@ -253,15 +313,5 @@ public class MenuHandler {
         }
     }
 
-    public void eliminarProducto() {
-        try {
-            System.out.print("ID del producto: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            productoService.eliminar(id);
-            System.out.println("✔ Producto eliminado (lógico).");
-        } catch (Exception e) {
-            System.err.println("Error al eliminar producto: " + e.getMessage());
-        }
-    }
+    
 }
