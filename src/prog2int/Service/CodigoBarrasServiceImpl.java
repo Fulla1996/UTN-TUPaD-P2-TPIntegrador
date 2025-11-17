@@ -43,7 +43,7 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
         return cbDAO.getById(id);
     }
     
-    public CodigoBarras getByName(String valor) throws Exception{
+    public CodigoBarras getByValor(String valor) throws Exception{
         return cbDAO.getByValor(valor);
     }
 

@@ -54,11 +54,38 @@ public class MenuHandler {
     //Opcion 2
     public void crearProducto() {
         try {
+            System.out.println("\n--- Crear Código de Barras ---");
+            long idCB;
+            
+            do{
+                System.out.print("ID: ");
+                idCB = Long.parseLong(scanner.nextLine());
+                if (cbService.getById(idCB) != null)
+                    System.out.println("El ID del código de barras ya existe. Intente otro.");
+            }while(cbService.getById(idCB) != null);
+
+            System.out.print("Tipo (EAN13/EAN8/UPC): ");
+            String tipo = scanner.nextLine().trim().toUpperCase();
+
+            System.out.print("Valor: ");
+            String valor = scanner.nextLine().trim();
+
+            System.out.print("Observaciones: ");
+            String obs = scanner.nextLine().trim();
+
+            CodigoBarras cb = new CodigoBarras(idCB, tipo, valor, new Date(), obs);
+            
             System.out.println("\n--- Crear Producto ---");
-
+            long idP;
+            do{
             System.out.print("ID: ");
-            long id = Long.parseLong(scanner.nextLine());
-
+            idP = Long.parseLong(scanner.nextLine());
+            
+            if (productoService.getById(idP) != null){
+                System.out.println("Id ya existente, intente otro.");
+            }
+            }while(productoService.getById(idP) != null);
+            
             System.out.print("Nombre: ");
             String nombre = scanner.nextLine().trim();
 
@@ -74,12 +101,9 @@ public class MenuHandler {
             System.out.print("Peso: ");
             double peso = Double.parseDouble(scanner.nextLine());
 
-            // Por ahora solo creamos el objeto Código de Barras vacío
-            System.out.println("Creando producto sin código de barras asociado (por ahora).");
-            CodigoBarras cb = null;
-
-            Producto p = new Producto(id, nombre, marca, categoria, precio, peso, cb);
-            productoService.insertar(p);
+            Producto p = new Producto(idP, nombre, marca, categoria, precio, peso, cb);
+            
+            
 
             System.out.println("✔ Producto creado con éxito.");
         } catch (Exception e) {
@@ -110,31 +134,62 @@ public class MenuHandler {
     }
     
     //Opcion 4
-     public void buscarCodigoPorNombre() {
-        try {
-            System.out.print("Nombre de producto a buscar: ");
-            String nombre = scanner.nextLine();
-
-            CodigoBarras cb = cbService.getByName(nombre);
-            if (cb == null) {
-                System.out.println("No se encontró el código.");
-                return;
-            }
-
-            System.out.println(cb);
-        } catch (Exception e) {
-            System.err.println("Error al buscar código: " + e.getMessage());
-        }
+     public void buscarProductoPorNombre() {
+        
     }
     
     //Opcion 5
-     public void buscarProductoPorNombre(){
-         
-     }
-     //Opcion 6
      public void buscarProductoPorMarca(){
          
      }
+     //Opcion 6
+     public void actualizarProducto() {
+        try {
+            System.out.print("ID del producto a actualizar: ");
+            long id = Long.parseLong(scanner.nextLine());
+
+            Producto p = productoService.getById(id);
+            if (p == null) {
+                System.out.println("Producto no encontrado.");
+                return;
+            }
+
+            System.out.print("Nuevo nombre (" + p.getNombre() + "): ");
+            String nombre = scanner.nextLine().trim();
+            if (!nombre.isEmpty()) {
+                p.setNombre(nombre);
+            }
+
+            System.out.print("Nueva marca (" + p.getMarca() + "): ");
+            String marca = scanner.nextLine().trim();
+            if (!marca.isEmpty()) {
+                p.setMarca(marca);
+            }
+
+            System.out.print("Nueva categoría (" + p.getCategoria() + "): ");
+            String cat = scanner.nextLine().trim();
+            if (!cat.isEmpty()) {
+                p.setCategoria(cat);
+            }
+
+            System.out.print("Nuevo precio (" + p.getPrecio() + "): ");
+            String precioIn = scanner.nextLine().trim();
+            if (!precioIn.isEmpty()) {
+                p.setPrecio(Double.parseDouble(precioIn));
+            }
+
+            System.out.print("Nuevo peso (" + p.getPeso() + "): ");
+            String pesoIn = scanner.nextLine().trim();
+            if (!pesoIn.isEmpty()) {
+                p.setPeso(Double.parseDouble(pesoIn));
+            }
+
+            productoService.actualizar(p);
+            System.out.println("✔ Producto actualizado.");
+        } catch (Exception e) {
+            System.err.println("Error al actualizar producto: " + e.getMessage());
+        }
+    }
      
      //Option 7
      public void eliminarProducto() {
@@ -185,7 +240,20 @@ public class MenuHandler {
      //Opcion 10
      
      public void buscarCodigoBarrasPorValor(){
-         
+         try {
+            System.out.print("Nombre de producto a buscar: ");
+            String nombre = scanner.nextLine();
+
+            CodigoBarras cb = cbService.getByValor(nombre);
+            if (cb == null) {
+                System.out.println("No se encontró el código.");
+                return;
+            }
+
+            System.out.println(cb);
+        } catch (Exception e) {
+            System.err.println("Error al buscar código: " + e.getMessage());
+        }
      }
      
      //Opcion 11
@@ -225,7 +293,14 @@ public class MenuHandler {
         try {
             System.out.println("\n--- Crear Código de Barras ---");
             System.out.print("ID: ");
-            long id = Long.parseLong(scanner.nextLine());
+            long id;
+            
+            do{
+                id = Long.parseLong(scanner.nextLine());
+                if (cbService.getById(id) != null)
+                    System.out.println("El ID del código de barras ya existe. Intente otro.");
+                
+            }while(cbService.getById(id) != null);
 
             System.out.print("Tipo (EAN13/EAN8/UPC): ");
             String tipo = scanner.nextLine().trim().toUpperCase();
@@ -256,62 +331,5 @@ public class MenuHandler {
             System.err.println("Error al eliminar código: " + e.getMessage());
         }
     }
-
-    // --- PRODUCTOS 
-
-    
-
-    
-
-
-
-    public void actualizarProducto() {
-        try {
-            System.out.print("ID del producto a actualizar: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            Producto p = productoService.getById(id);
-            if (p == null) {
-                System.out.println("Producto no encontrado.");
-                return;
-            }
-
-            System.out.print("Nuevo nombre (" + p.getNombre() + "): ");
-            String nombre = scanner.nextLine().trim();
-            if (!nombre.isEmpty()) {
-                p.setNombre(nombre);
-            }
-
-            System.out.print("Nueva marca (" + p.getMarca() + "): ");
-            String marca = scanner.nextLine().trim();
-            if (!marca.isEmpty()) {
-                p.setMarca(marca);
-            }
-
-            System.out.print("Nueva categoría (" + p.getCategoria() + "): ");
-            String cat = scanner.nextLine().trim();
-            if (!cat.isEmpty()) {
-                p.setCategoria(cat);
-            }
-
-            System.out.print("Nuevo precio (" + p.getPrecio() + "): ");
-            String precioIn = scanner.nextLine().trim();
-            if (!precioIn.isEmpty()) {
-                p.setPrecio(Double.parseDouble(precioIn));
-            }
-
-            System.out.print("Nuevo peso (" + p.getPeso() + "): ");
-            String pesoIn = scanner.nextLine().trim();
-            if (!pesoIn.isEmpty()) {
-                p.setPeso(Double.parseDouble(pesoIn));
-            }
-
-            productoService.actualizar(p);
-            System.out.println("✔ Producto actualizado.");
-        } catch (Exception e) {
-            System.err.println("Error al actualizar producto: " + e.getMessage());
-        }
-    }
-
     
 }

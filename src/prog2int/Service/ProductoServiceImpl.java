@@ -4,8 +4,11 @@
  */
 package prog2int.Service;
 
+import java.sql.Connection;
 import java.util.List;
+import prog2int.Config.DatabaseConnection;
 import prog2int.Dao.ProductoDAO;
+import prog2int.Models.CodigoBarras;
 import prog2int.Models.Producto;
 
 /**
@@ -67,6 +70,10 @@ public class ProductoServiceImpl implements GenericService<Producto>{
 
     public CodigoBarrasServiceImpl getCodigoBarrasServiceImpl() {
         return codigoBarrasServiceImpl;
+    }
+    
+    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn){
+        
     }
     
 }
