@@ -43,20 +43,22 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * - Persona: id, nombre, apellido, dni, domicilio_id
      * - Domicilio (puede ser NULL): dom_id, calle, numero
      */
-    private static final String SELECT_BY_ID_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
-            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.id = ? AND p.eliminado = FALSE";
+    private static final String SELECT_BY_ID_SQL =
+    "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, p.peso, " +
+    "cb.id AS codigoBarras, cb.tipo, cb.valor, cb.fechaAsignaion, cb.observaciones " +
+    "FROM producto p JOIN codigobarras cb ON p.codigoBarras = cb.id " +
+    "WHERE p.id = ? AND p.eliminado = FALSE";
 
     /**
      * Query para obtener todas las personas activas.
      * LEFT JOIN con domicilios para cargar relaciones.
      * Filtra por eliminado=FALSE (solo personas activas).
      */
-    private static final String SELECT_ALL_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
-            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE";
+    private static final String SELECT_ALL_SQL =
+    "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, p.peso, " +
+    "cb.id AS codigoBarras, cb.tipo, cb.valor, cb.fechaAsignaion, cb.observaciones " +
+    "FROM producto p JOIN codigobarras cb ON p.codigoBarras = cb.id " +
+    "WHERE p.eliminado = FALSE";
 
     /**
      * Query de búsqueda por nombre o apellido con LIKE.
@@ -64,10 +66,11 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Usa % antes y después del filtro: LIKE '%filtro%'
      * Solo personas activas (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_NAME_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
-            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";
+    private static final String SEARCH_BY_NAME_SQL =
+    "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, p.peso, " +
+    "cb.id AS codigoBarras, cb.tipo, cb.valor, cb.fechaAsignaion, cb.observaciones " +
+    "FROM producto p JOIN codigobarras cb ON p.codigoBarras = cb.id " +
+    "WHERE p.eliminado = FALSE AND p.nombre LIKE ?";
 
     /**
      * Query de búsqueda exacta por DNI.
@@ -75,10 +78,11 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Usado por PersonaServiceImpl.validateDniUnique() para verificar unicidad.
      * Solo personas activas (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
-            "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
-            "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";
+    private static final String SEARCH_BY_BRAND_SQL =
+    "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, p.peso, " +
+    "cb.id AS codigoBarras, cb.tipo, cb.valor, cb.fechaAsignaion, cb.observaciones " +
+    "FROM producto p JOIN codigobarras cb ON p.codigoBarras = cb.id " +
+    "WHERE p.eliminado = FALSE AND p.marca LIKE ?";
 
     /**
      * DAO de domicilios (actualmente no usado, pero disponible para operaciones futuras).
@@ -93,6 +97,15 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * @param domicilioDAO DAO de domicilios
      * @throws IllegalArgumentException si domicilioDAO es null
      */
+    public List<Producto> buscarPorNombre(String nombre) throws Exception {
+    return getListByName(nombre);
+}
+
+    public List<Producto> buscarPorMarca(String marca) throws Exception {
+    return getListByBrand(marca);
+}
+
+    
     public ProductoDAO(CodigoBarrasDAO codigoBarrasDAO) {
         if (codigoBarrasDAO == null) {
             throw new IllegalArgumentException("DomicilioDAO no puede ser null");
@@ -192,56 +205,57 @@ public class ProductoDAO implements GenericDAO<Producto>{
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";*/
 
-    private List<Producto> getListByName(String name) throws Exception{
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
-        }
-        
-        List<Producto> productos = new ArrayList<>();
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
-
-            stmt.setString(1, name);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    productos.add(mapResultSetToProducto(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
-        }
-        return productos;
+    public List<Producto> getListByName(String name) throws Exception {
+    if (name == null || name.trim().isEmpty()) {
+        throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
     }
+
+    List<Producto> productos = new ArrayList<>();
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
+
+        stmt.setString(1, "%" + name + "%");
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                productos.add(mapResultSetToProducto(rs));
+            }
+        }
+    } catch (SQLException e) {
+        throw new Exception("Error al buscar productos por nombre: " + e.getMessage(), e);
+    }
+    return productos;
+}
+
     
     /*SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";*/
     
-        private List<Producto> getListByBrand(String brand) throws Exception{
-        if (brand == null || brand.trim().isEmpty()) {
-            throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
-        }
-        
-        List<Producto> productos = new ArrayList<>();
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
-
-            stmt.setString(1, brand);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    productos.add(mapResultSetToProducto(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
-        }
-        return productos;
+        public List<Producto> getListByBrand(String brand) throws Exception {
+    if (brand == null || brand.trim().isEmpty()) {
+        throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
     }
+
+    List<Producto> productos = new ArrayList<>();
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_BRAND_SQL)) {
+
+        stmt.setString(1, "%" + brand + "%");
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                productos.add(mapResultSetToProducto(rs));
+            }
+        }
+    } catch (SQLException e) {
+        throw new Exception("Error al buscar productos por marca: " + e.getMessage(), e);
+    }
+    return productos;
+}
     
     //"INSERT INTO producto (id, nombre, marca, categoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)"
     private void setProductoParameters(PreparedStatement stmt, Producto producto) throws SQLException {
@@ -255,23 +269,24 @@ public class ProductoDAO implements GenericDAO<Producto>{
     }
     
     private Producto mapResultSetToProducto(ResultSet rs) throws SQLException {
-        Producto producto = new Producto();
-        producto.setId(rs.getInt("id"));
-        producto.setNombre(rs.getString("nombre"));
-        producto.setCategoria(rs.getString("categoria"));
-        producto.setPeso(rs.getDouble("peso"));
-        producto.setPrecio(rs.getDouble("precio"));
-        
-        // Manejo correcto de LEFT JOIN: verificar si domicilio_id es NULL
-        CodigoBarras cb = new CodigoBarras();
-        cb.setId(rs.getInt("cb.id"));
-        cb.setTipoCB(TipoCB.valueOf(rs.getString("cb.tipo")));
-        cb.setValor(rs.getString("cb.valor"));
-        cb.setFecha(rs.getDate("cb.fechaAsignacion"));
-        cb.setObservaciones(rs.getString("cb.observacion"));
-        
-        producto.setCodigoBarras(cb);
-        
-        return producto;
-    }
+    Producto producto = new Producto();
+    producto.setId(rs.getLong("id"));
+    producto.setNombre(rs.getString("nombre"));
+    producto.setMarca(rs.getString("marca"));
+    producto.setCategoria(rs.getString("categoria"));
+    producto.setPrecio(rs.getDouble("precio"));
+    producto.setPeso(rs.getDouble("peso"));
+
+    CodigoBarras cb = new CodigoBarras();
+    cb.setId(rs.getLong("codigoBarras")); 
+    cb.setTipoCB(TipoCB.valueOf(rs.getString("tipo")));
+    cb.setValor(rs.getString("valor"));
+    cb.setFecha(rs.getDate("fechaAsignaion")); 
+    cb.setObservaciones(rs.getString("observaciones"));
+
+    producto.setCodigoBarras(cb);
+
+    return producto;
+}
+
 }

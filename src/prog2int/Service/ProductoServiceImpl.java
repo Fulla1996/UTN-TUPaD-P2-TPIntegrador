@@ -4,8 +4,11 @@
  */
 package prog2int.Service;
 
+import java.sql.Connection;
 import java.util.List;
+import prog2int.Config.DatabaseConnection;
 import prog2int.Dao.ProductoDAO;
+import prog2int.Models.CodigoBarras;
 import prog2int.Models.Producto;
 
 /**
@@ -29,20 +32,29 @@ public class ProductoServiceImpl implements GenericService<Producto>{
     }
     
     
-    @Override
-    public void insertar(Producto entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+   @Override
+public void insertar(Producto entidad) throws Exception {
+    if (entidad == null) {
+        throw new IllegalArgumentException("El producto no puede ser null");
     }
+    productoDAO.insertar(entidad);
+}
 
     @Override
-    public void actualizar(Producto entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+public void actualizar(Producto entidad) throws Exception {
+    if (entidad == null || entidad.getId() <= 0) {
+        throw new IllegalArgumentException("Producto inválido");
     }
+    productoDAO.actualizar(entidad);
+}
 
     @Override
-    public void eliminar(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+public void eliminar(long id) throws Exception {
+    if (id <= 0) {
+        throw new IllegalArgumentException("ID inválido");
     }
+    productoDAO.eliminar(id);
+}
 
     @Override
     public Producto getById(long id) throws Exception {
@@ -56,9 +68,21 @@ public class ProductoServiceImpl implements GenericService<Producto>{
     public List getAll() throws Exception {
         return productoDAO.getAll();
     }
+    
+    public List getByName(String name) throws Exception{
+        return productoDAO.getListByName(name);
+    }
+    
+    public List getByBrand(String brand) throws Exception{
+        return productoDAO.getListByBrand(brand);
+    }
 
     public CodigoBarrasServiceImpl getCodigoBarrasServiceImpl() {
         return codigoBarrasServiceImpl;
+    }
+    
+    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn){
+        
     }
     
 }
