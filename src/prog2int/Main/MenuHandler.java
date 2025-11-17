@@ -105,7 +105,7 @@ public class MenuHandler {
             CodigoBarras cb = new CodigoBarras(id, false, tipo, valor, null, obs);
             cbService.insertar(cb);
 
-            System.out.println("✔ Código de barras creado con éxito.");
+            System.out.println("Código de barras creado con éxito.");
 
         } catch (Exception e) {
             System.err.println("Error al crear código: " + e.getMessage());
@@ -210,7 +210,7 @@ public class MenuHandler {
             if (!obs.isEmpty()) cb.setObservaciones(obs);
 
             cbService.actualizar(cb);
-            System.out.println("✔ Código actualizado.");
+            System.out.println("Código actualizado.");
 
         } catch (Exception e) {
             System.err.println("Error al actualizar código: " + e.getMessage());
@@ -240,7 +240,7 @@ public class MenuHandler {
             long id = Long.parseLong(scanner.nextLine());
 
             cbService.eliminar(id);
-            System.out.println("✔ Código eliminado (lógico).");
+            System.out.println("Código eliminado (lógico).");
 
         } catch (Exception e) {
             System.err.println("Error al eliminar código: " + e.getMessage());
@@ -399,7 +399,7 @@ public class MenuHandler {
             if (!pesoIn.isEmpty()) p.setPeso(Double.parseDouble(pesoIn));
 
             productoService.actualizar(p);
-            System.out.println("✔ Producto actualizado.");
+            System.out.println("Producto actualizado.");
 
         } catch (Exception e) {
             System.err.println("Error al actualizar producto: " + e.getMessage());
@@ -436,7 +436,7 @@ public class MenuHandler {
             long id = Long.parseLong(scanner.nextLine());
 
             productoService.eliminar(id);
-            System.out.println("✔ Producto eliminado (lógico).");
+            System.out.println("Producto eliminado (lógico).");
 
         } catch (Exception e) {
             System.err.println("Error al eliminar producto: " + e.getMessage());
