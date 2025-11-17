@@ -17,27 +17,30 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
     private final CodigoBarrasDAO cbDAO;
 
     public CodigoBarrasServiceImpl(CodigoBarrasDAO cbDAO) {
+        if (cbDAO == null) {
+            throw new IllegalArgumentException("CodigoBarrasDAO no puede ser null");
+        }
         this.cbDAO = cbDAO;
     }
     
     @Override
-    public void insertar(CodigoBarras entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void insertar(CodigoBarras cb) throws Exception {
+        cbDAO.insertar(cb);
     }
 
     @Override
-    public void actualizar(CodigoBarras entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void actualizar(CodigoBarras cb) throws Exception {
+        cbDAO.actualizar(cb);
     }
 
     @Override
     public void eliminar(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        cbDAO.eliminar(id);
     }
 
     @Override
     public CodigoBarras getById(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return cbDAO.getById(id);
     }
 
     @Override

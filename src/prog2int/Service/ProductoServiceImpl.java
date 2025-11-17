@@ -30,18 +30,18 @@ public class ProductoServiceImpl implements GenericService<Producto>{
     
     
     @Override
-    public void insertar(Producto entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void insertar(Producto prod) throws Exception {
+        productoDAO.insertar(prod);
     }
 
     @Override
-    public void actualizar(Producto entidad) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void actualizar(Producto prod) throws Exception {
+        productoDAO.actualizar(prod);
     }
 
     @Override
     public void eliminar(long id) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        productoDAO.eliminar(id);
     }
 
     @Override

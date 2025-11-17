@@ -75,7 +75,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
      * Usado por PersonaServiceImpl.validateDniUnique() para verificar unicidad.
      * Solo personas activas (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_MARCA_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
+    private static final String SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";
