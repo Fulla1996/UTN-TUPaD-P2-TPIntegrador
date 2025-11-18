@@ -77,6 +77,14 @@ public class ProductoServiceImpl implements GenericService<Producto>{
         return cbServiceImpl;
     }
     
+    /**
+     * Insert controlado por transacciones para garantizar que se den de alta tanto
+     * Producto como CodigoBarras o la operación se revierta
+     * @param prod Producto a insertar
+     * @param cb Codigo de barras correspondiente
+     * @param conn Connexión a la base de datos
+     * @throws SQLException 
+     */
     public void insertarTx(Producto prod, CodigoBarras cb, Connection conn) throws SQLException{
         TransactionManager tx = new TransactionManager(conn);
         tx.startTransaction();

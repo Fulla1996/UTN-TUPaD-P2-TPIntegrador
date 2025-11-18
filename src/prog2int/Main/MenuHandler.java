@@ -159,14 +159,14 @@ public class MenuHandler {
     
     //Opcion 5
     public void buscarProductoPorMarca(){
-        System.out.print("Ingrese la marca a buscar: ");
+        System.out.print("Ingrese la marca o categoria a buscar: ");
         String marca = scanner.nextLine();
 
         try {
             List<Producto> productos = productoService.getByBrand(marca);
 
             if (productos.isEmpty()) {
-                System.out.println("No se encontraron productos con esa marca.");
+                System.out.println("No se encontraron productos con esa marca o categoria.");
             } else {
                 mostrarProductos(productos);
             }
@@ -365,7 +365,11 @@ public class MenuHandler {
         }
     }
     
-        //Método mostrarProductos
+
+    /**
+     * Metodo de muestra de productos con un formato más amigable
+     * @param lista Lista de productos a mostrar
+     */
     private void mostrarProductos(List<Producto> lista) {
         System.out.println("\n============= RESULTADOS =============");
 

@@ -18,8 +18,15 @@ import prog2int.Models.TipoCB;
  */
 public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
 
+    /**
+     * Query de insert en la base de datos
+     */
     private static final String INSERT_SQL = "INSERT INTO codigoBarras (id, tipo, valor, fechaAsignacion, observaciones) VALUES (?, ?, ?, ?, ?)";
 
+    /**
+     * Query de update en la base de datos
+     * NO actualiza el flag eliminado (solo se modifica en soft delete).
+     */
     private static final String UPDATE_SQL = "UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observaciones = ? WHERE id = ?";
 
     /**
@@ -34,13 +41,17 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
      * Solo retorna activos (eliminado=FALSE).
      *
      * Campos del ResultSet:
-     * - CodigoBarras: id, tipo, valor, fechaAsignacion, observacion
+     * - CodigoBarras: id, tipo, valor, fechaAsignacion, observacion, p.id
      */
     private static final String SELECT_BY_ID_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
             "FROM codigoBarras cb " +
             "JOIN producto p on p.codigobarras = cb.id " +
             "WHERE cb.id = ? AND cb.eliminado = FALSE";
 
+    /**
+     * Query simplificada para obtener existencia de id en la base de datos
+     * En el mismo no se discriminan eliminados de activos
+     */
     private static final String SELECT_ID_EXIST = "SELECT id FROM codigoBarras WHERE id = ?";
     /**
      * Query para obtener todos los códigos de barras.
@@ -52,16 +63,19 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
             "WHERE cb.eliminado = FALSE";
 
     /**
-     * Query de búsqueda por nombre o apellido con LIKE.
-     * Permite búsqueda flexible: el usuario ingresa "juan" y encuentra "Juan", "Juana", etc.
-     * Usa % antes y después del filtro: LIKE '%filtro%'
-     * Solo personas activas (eliminado=FALSE).
+     * Query de búsqueda por valor con coincidencia exacta.
+     * Solo codigos de barras activos (eliminado=FALSE).
      */
     private static final String SEARCH_BY_VALOR_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
             "FROM codigoBarras cb " +
             "JOIN producto p on p.codigobarras = cb.id " +
             "WHERE cb.eliminado = FALSE AND (cb.valor = ?)";
 
+    /**
+     * Inserta objeto codigo de barras en la base de datos
+     * @param cb objeto codigo de barras a insertar
+     * @throws Exception 
+     */
     @Override
     public void insertar(CodigoBarras cb) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
@@ -72,6 +86,12 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
     }
 
+    /**
+     * Funcion de insert que recibe conexión externa para ser usado en transacciones
+     * @param cb objeto codigo de barras a insertar
+     * @param conn conexión externa
+     * @throws Exception 
+     */
     @Override
     public void insertTx(CodigoBarras cb, Connection conn) throws Exception {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
@@ -80,6 +100,11 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
     }
 
+    /**
+     * Actualiza en la base de datos un codigo de barras
+     * @param cb objeto con datos finales a setear en la base de datos
+     * @throws Exception 
+     */
     //"UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observacion = ? WHERE id = ?"
     @Override
     public void actualizar(CodigoBarras cb) throws Exception {
@@ -100,6 +125,11 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
     }
 
+    /**
+     * Realiza la eliminacion lógica del codigo de barras con el id proporcionado
+     * @param id identificacion del codigo de barras a eliminar
+     * @throws Exception 
+     */
     //"UPDATE codigoBarras SET eliminado = TRUE WHERE id = ?"
     @Override
     public void eliminar(long id) throws Exception {
@@ -115,6 +145,12 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
     }
 
+    /**
+     * Trae el codigo de barras correspondiente al id proporcionado
+     * @param id identificacion del codigo de barras
+     * @return objeto codigo de barras correspondiente al id
+     * @throws Exception 
+     */
     @Override
     public CodigoBarras getById(long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
@@ -131,6 +167,11 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         return null;
     }
 
+    /**
+     * Trae todos los codigos de barras de la base de datos
+     * @return Lista con Codigos de barras
+     * @throws Exception 
+     */
     @Override
     public List<CodigoBarras> getAll() throws Exception {
         List<CodigoBarras> codigosBarras = new ArrayList<>();
@@ -147,6 +188,13 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
         return codigosBarras;
     }
+    
+    /**
+     * Trae el objeto codigo de barras correspondiente al valor de la base de datos
+     * @param value valor de codigo de barras a buscar
+     * @return Objeto Codigo de barras correspondiente al valor
+     * @throws SQLException 
+     */
     /*SEARCH_BY_VALOR_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
             "FROM codigoBarras cb" +
             "JOIN producto p on p.codigobarras = cb.id" +
@@ -165,6 +213,14 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
         return null;
     }
+    
+    /**
+     * Consulta simplificada para verificar existencia de un ID
+     * ya sea Activo o Eliminado
+     * @param id a buscar en la base de datos
+     * @return True = existe el id, False = no existe el id
+     * @throws Exception 
+     */
     public boolean idExists(long id) throws Exception{
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SELECT_ID_EXIST)) {
@@ -179,6 +235,14 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
                 throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
             }
         }
+    
+    /**
+     * Mapea el resultado del query dentro de un nuevo objeto CodigoBarras
+     * @param rs resultado de ejecución de PreparedStatement
+     * @return Codigo de Barras con todos sus campos leidos del query
+     * @throws SQLException 
+     */
+    
     public CodigoBarras mapResultSetToCodigoBarras(ResultSet rs) throws SQLException{
         CodigoBarras cb = new CodigoBarras();
         cb.setId(rs.getInt("cb.id"));
