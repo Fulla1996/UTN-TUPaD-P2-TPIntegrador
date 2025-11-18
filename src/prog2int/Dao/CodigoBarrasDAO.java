@@ -53,6 +53,23 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         return null;
     }
     
+    public CodigoBarras getByValor(String valor) {
+    String sql = "SELECT * FROM codigobarras WHERE valor = ?";
+    try (Connection con = DatabaseConnection.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, valor);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return mapResultSetToCodigoBarras(rs);
+        }
+    } catch (Exception e) {
+        System.err.println("Error al buscar código: " + e.getMessage());
+    }
+    return null;
+}
+    
     @Override
     public void insertar(CodigoBarras cb) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();

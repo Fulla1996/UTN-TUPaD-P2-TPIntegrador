@@ -32,6 +32,17 @@ public class CodigoBarras extends Base {
         this.observaciones = observaciones;
         
     }
+    
+    private long idProducto;
+
+public long getIdProducto() {
+    return idProducto;
+}
+
+public void setIdProducto(long idProducto) {
+    this.idProducto = idProducto;
+}
+
 
     /** Constructor por defecto para crear una persona nueva sin ID. */
     public CodigoBarras() {

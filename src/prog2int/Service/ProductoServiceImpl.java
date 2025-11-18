@@ -5,8 +5,10 @@
 package prog2int.Service;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import prog2int.Config.DatabaseConnection;
+import prog2int.Config.TransactionManager;
 import prog2int.Dao.ProductoDAO;
 import prog2int.Models.CodigoBarras;
 import prog2int.Models.Producto;
@@ -18,7 +20,7 @@ import prog2int.Models.Producto;
 public class ProductoServiceImpl implements GenericService<Producto>{
 
     private final ProductoDAO productoDAO;
-    private final CodigoBarrasServiceImpl codigoBarrasServiceImpl;
+    private final CodigoBarrasServiceImpl cbServiceImpl;
 
     public ProductoServiceImpl(ProductoDAO productoDAO, CodigoBarrasServiceImpl codigoBarrasServiceImpl) {
         if (productoDAO == null) {
@@ -28,33 +30,24 @@ public class ProductoServiceImpl implements GenericService<Producto>{
             throw new IllegalArgumentException("CodigoBarrasServiceImpl no puede ser null");
         }
         this.productoDAO = productoDAO;
-        this.codigoBarrasServiceImpl = codigoBarrasServiceImpl;
+        this.cbServiceImpl = codigoBarrasServiceImpl;
     }
     
     
-   @Override
-public void insertar(Producto entidad) throws Exception {
-    if (entidad == null) {
-        throw new IllegalArgumentException("El producto no puede ser null");
+    @Override
+    public void insertar(Producto prod) throws Exception {
+        productoDAO.insertar(prod);
     }
-    productoDAO.insertar(entidad);
-}
 
     @Override
-public void actualizar(Producto entidad) throws Exception {
-    if (entidad == null || entidad.getId() <= 0) {
-        throw new IllegalArgumentException("Producto inválido");
+    public void actualizar(Producto prod) throws Exception {
+        productoDAO.actualizar(prod);
     }
-    productoDAO.actualizar(entidad);
-}
 
     @Override
-public void eliminar(long id) throws Exception {
-    if (id <= 0) {
-        throw new IllegalArgumentException("ID inválido");
+    public void eliminar(long id) throws Exception {
+        productoDAO.eliminar(id);
     }
-    productoDAO.eliminar(id);
-}
 
     @Override
     public Producto getById(long id) throws Exception {
@@ -65,24 +58,36 @@ public void eliminar(long id) throws Exception {
     }
 
     @Override
-    public List getAll() throws Exception {
-        return productoDAO.getAll();
-    }
+public List<Producto> getAll() throws Exception {
+    return productoDAO.getAll();
+}
     
-    public List getByName(String name) throws Exception{
-        return productoDAO.getListByName(name);
-    }
-    
-    public List getByBrand(String brand) throws Exception{
-        return productoDAO.getListByBrand(brand);
-    }
+public List<Producto> getListByName(String nombre) throws Exception {
+    return productoDAO.getListByName(nombre);
+}
+
+public List<Producto> getListByBrand(String marca) throws Exception {
+    return productoDAO.getListByBrand(marca);
+}
 
     public CodigoBarrasServiceImpl getCodigoBarrasServiceImpl() {
-        return codigoBarrasServiceImpl;
+        return cbServiceImpl;
     }
     
-    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn){
-        
+    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn) throws SQLException{
+        TransactionManager tx = new TransactionManager(conn);
+        tx.startTransaction();
+        try{
+            cbServiceImpl.insertarTx(cb, conn);
+            productoDAO.insertTx(prod, conn);
+            
+            tx.commit();
+            tx.close();
+            
+        }catch (Exception e) {
+                tx.rollback();
+                System.err.println("Error en la transaccion: " + e.getMessage());
+            }
     }
     
 }

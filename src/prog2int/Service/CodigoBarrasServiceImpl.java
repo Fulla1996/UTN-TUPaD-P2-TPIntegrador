@@ -4,6 +4,7 @@
  */
 package prog2int.Service;
 
+import java.sql.Connection;
 import java.util.List;
 import prog2int.Dao.CodigoBarrasDAO;
 import prog2int.Models.CodigoBarras;
@@ -14,14 +15,14 @@ import prog2int.Models.CodigoBarras;
  */
 public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
 
-    private final CodigoBarrasDAO cbDAO;
+    private final CodigoBarrasDAO codigoBarrasDAO;
 
-    public CodigoBarrasServiceImpl(CodigoBarrasDAO cbDAO) {
-        this.cbDAO = cbDAO;
+    public CodigoBarrasServiceImpl() {
+        this.codigoBarrasDAO = new CodigoBarrasDAO();
     }
     
         private long generarNuevoId() throws Exception {
-        Long maxId = cbDAO.getMaxId();
+        Long maxId = codigoBarrasDAO.getMaxId();
         return (maxId == null ? 1 : maxId + 1);
         }
         
@@ -61,14 +62,23 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
                 throw new Exception("Tipo de código de barras no reconocido.");
         }
     }
-    
+        public CodigoBarras getByValor(String valor) {
+    return codigoBarrasDAO.getByValor(valor);
+}
+        
+  
     @Override
     public void insertar(CodigoBarras cb) throws Exception {
         validarCodigo(cb); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         
         cb.setId(generarNuevoId());
-        cbDAO.insertar(cb);
+        codigoBarrasDAO.insertar(cb);
     }
+    
+    public void insertarTx(CodigoBarras cb, Connection conn) throws Exception {
+    codigoBarrasDAO.insertTx(cb, conn);
+}
+
 
     @Override
     public void actualizar(CodigoBarras cb) throws Exception {
@@ -78,22 +88,22 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
 
         validarCodigo(cb); // validación completa
 
-        cbDAO.actualizar(cb);
+        codigoBarrasDAO.actualizar(cb);
     }
 
     @Override
     public void eliminar(long id) throws Exception {
-        cbDAO.eliminar(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        codigoBarrasDAO.eliminar(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public CodigoBarras getById(long id) throws Exception {
-        return cbDAO.getById(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return codigoBarrasDAO.getById(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public List<CodigoBarras> getAll()  throws Exception {
-        return cbDAO.getAll();
+        return codigoBarrasDAO.getAll();
     }
     
 }
