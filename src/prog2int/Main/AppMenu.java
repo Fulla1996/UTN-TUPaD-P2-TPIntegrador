@@ -32,6 +32,8 @@ public class AppMenu {
                 MenuDisplay.mostrarMenuPrincipal();
                 int opcion = Integer.parseInt(scanner.nextLine());
                 processOption(opcion);
+                System.out.println("\nPresione ENTER para continuar.");
+                scanner.nextLine();
             } catch (NumberFormatException e) {
                 System.out.println("Entrada invalida. Por favor, ingrese un numero.");
             }

@@ -60,12 +60,14 @@ public class MenuHandler {
                     System.out.println("El ID del código de barras ya existe. Intente otro.");
             }while(cbService.idExists(idCB));
 
+            String tipo, valor;
+            do{
             System.out.print("Tipo (EAN13/EAN8/UPC): ");
-            String tipo = scanner.nextLine().trim().toUpperCase();
+            tipo = scanner.nextLine().trim().toUpperCase();
 
             System.out.print("Valor: ");
-            String valor = scanner.nextLine().trim();
-
+            valor = scanner.nextLine().trim();
+            }while(!cbService.validarCodigo(tipo, valor));
             System.out.print("Observaciones: ");
             String obs = scanner.nextLine().trim();
 

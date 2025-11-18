@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.util.List;
 import prog2int.Dao.CodigoBarrasDAO;
 import prog2int.Models.CodigoBarras;
+import prog2int.Models.TipoCB;
 
 /**
  *
@@ -60,4 +61,54 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
         cbDAO.insertTx(cb, conn);
     }
     
+    public boolean validarCodigo(String tipo, String valor) throws Exception {
+
+        if (valor == null || valor.isBlank()) {
+            System.out.println("El valor del código de barras no puede estar vacío.");
+            return false;
+        }
+
+        // Solo dígitos
+        if (!valor.matches("\\d+")) {
+            System.out.println("El código de barras solo puede contener números.");
+            return false;
+        }
+
+        int longitud = valor.length();
+
+        try{
+        switch (TipoCB.valueOf(tipo)) {
+            case EAN13:
+                if (longitud != 13) {
+                    System.out.println("EAN13 debe tener exactamente 13 dígitos.");
+                    return false;
+                }
+                break;
+
+            case EAN8:
+                if (longitud != 8) {
+                    System.out.println("EAN8 debe tener exactamente 8 dígitos.");
+                    return false;
+                }
+                break;
+
+            case UPC:
+                if (longitud != 12) {
+                    System.out.println("UPC debe tener exactamente 12 dígitos.");
+                    return false;
+                }
+                break;
+
+            default:
+                System.out.println("Tipo de código de barras no reconocido.");
+                return false;
+        }
+        
+        return true;
+        }
+        catch(Exception e){
+            System.out.println("Tipo de código de barras no reconocido.");
+            return false;
+        }
+    }
 }
