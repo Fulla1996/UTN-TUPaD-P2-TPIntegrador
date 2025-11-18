@@ -44,8 +44,8 @@ public class AppMenu {
             case 1 -> menuHandler.listarProductos();     // "Listar Productos"
             case 2 -> menuHandler.crearProducto();       // "Crear Producto"
             case 3 -> menuHandler.buscarProductoPorId(); // "Buscar Producto por ID"
-            // case 4 -> menuHandler.buscarProductoPorNombre();
-            // case 5 -> menuHandler.buscarProductoPorMarca();
+            case 4 -> menuHandler.buscarProductoPorNombre();
+            case 5 -> menuHandler.buscarProductoPorMarca();
             case 6 -> menuHandler.actualizarProducto();  // "Editar Producto"
             case 7 -> menuHandler.eliminarProducto();    // "Eliminar Producto"
             // ---- CODIGOS DE BARRA ----

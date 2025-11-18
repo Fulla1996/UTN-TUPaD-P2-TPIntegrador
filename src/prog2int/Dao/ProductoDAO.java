@@ -47,6 +47,11 @@ public class ProductoDAO implements GenericDAO<Producto>{
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
             "WHERE p.id = ? AND p.eliminado = FALSE";
+    
+    /**
+     * Query para verificar existencia de ID independientemente de si se encuentra eliminado
+     */
+    private static final String SELECT_ID_EXIST = "SELECT id FROM producto WHERE id = ?";
 
     /**
      * Query para obtener todas las personas activas.
@@ -70,15 +75,14 @@ public class ProductoDAO implements GenericDAO<Producto>{
             "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";
 
     /**
-     * Query de búsqueda exacta por DNI.
-     * Usa comparación exacta (=) porque el DNI es único (RN-001).
-     * Usado por PersonaServiceImpl.validateDniUnique() para verificar unicidad.
-     * Solo personas activas (eliminado=FALSE).
+     * Query de búsqueda por marca o categoria.
+     * Se utiliza operador LIKE para busquedas parciales.
+     * Solo productos activos (eliminado=FALSE).
      */
     private static final String SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";
+            "WHERE p.eliminado = FALSE AND ((p.marca LIKE ?) OR (p.categoria LIKE ?))";
 
     /**
      * DAO de domicilios (actualmente no usado, pero disponible para operaciones futuras).
@@ -144,6 +148,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
             PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
 
             stmt.setLong(1, id);
+            codigoBarrasDAO.eliminar(getById(id).getCodigoBarras().getId());
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected == 0) {
@@ -202,7 +207,8 @@ public class ProductoDAO implements GenericDAO<Producto>{
         try (Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
 
-            stmt.setString(1, name);
+            String namefilter = "%" + name + "%";
+            stmt.setString(1, namefilter);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -218,7 +224,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
     /*SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observacion " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE AND (p.marca LIKE ?)";*/
+            "WHERE p.eliminado = FALSE AND ((p.marca LIKE ?) OR p.categoria LIKE ?)";*/
     
         public List<Producto> getListByBrand(String brand) throws Exception{
         if (brand == null || brand.trim().isEmpty()) {
@@ -228,9 +234,12 @@ public class ProductoDAO implements GenericDAO<Producto>{
         List<Producto> productos = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_NAME_SQL)) {
+            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_BRAND_SQL)) {
 
-            stmt.setString(1, brand);
+            String brandFilter = "%" + brand + "%";
+            
+            stmt.setString(1, brandFilter);
+            stmt.setString(2, brandFilter);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -242,6 +251,21 @@ public class ProductoDAO implements GenericDAO<Producto>{
         }
         return productos;
     }
+    
+        public boolean idExists(long id) throws Exception{
+            try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SELECT_ID_EXIST)) {
+
+            stmt.setLong(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+                
+            }
+            } catch (SQLException e) {
+                throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
+            }
+        }
     
     //"INSERT INTO producto (id, nombre, marca, categoria, precio, peso, codigoBarras) VALUES (?, ?, ?, ?, ?, ?, ?)"
     private void setProductoParameters(PreparedStatement stmt, Producto producto) throws SQLException {

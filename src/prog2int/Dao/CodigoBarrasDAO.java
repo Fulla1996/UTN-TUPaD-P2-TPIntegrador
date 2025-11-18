@@ -41,6 +41,7 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
             "JOIN producto p on p.codigobarras = cb.id " +
             "WHERE cb.id = ? AND cb.eliminado = FALSE";
 
+    private static final String SELECT_ID_EXIST = "SELECT id FROM codigoBarras WHERE id = ?";
     /**
      * Query para obtener todos los códigos de barras.
      * Filtra por eliminado=FALSE (solo códigos activos).
@@ -164,7 +165,20 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         }
         return null;
     }
-    
+    public boolean idExists(long id) throws Exception{
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SELECT_ID_EXIST)) {
+
+            stmt.setLong(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+                
+            }
+            } catch (SQLException e) {
+                throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
+            }
+        }
     public CodigoBarras mapResultSetToCodigoBarras(ResultSet rs) throws SQLException{
         CodigoBarras cb = new CodigoBarras();
         cb.setId(rs.getInt("cb.id"));
@@ -177,6 +191,8 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         return cb;
         
     }
+    
+    
     /**
      * Setea los parámetros de domicilio en un PreparedStatement.
      * Método auxiliar usado por insertar() e insertTx().

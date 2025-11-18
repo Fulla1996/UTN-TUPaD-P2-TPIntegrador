@@ -56,6 +56,9 @@ public class ProductoServiceImpl implements GenericService<Producto>{
         }
         return productoDAO.getById(id);
     }
+    public boolean idExists(long id) throws Exception{
+        return productoDAO.idExists(id);
+    }
 
     @Override
     public List getAll() throws Exception {

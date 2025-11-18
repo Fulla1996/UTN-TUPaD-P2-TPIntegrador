@@ -44,6 +44,9 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
         return cbDAO.getById(id);
     }
     
+    public boolean idExists(long id) throws Exception{
+        return cbDAO.idExists(id);
+    }
     public CodigoBarras getByValor(String valor) throws Exception{
         return cbDAO.getByValor(valor);
     }
