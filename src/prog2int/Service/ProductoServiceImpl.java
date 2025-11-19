@@ -56,24 +56,35 @@ public class ProductoServiceImpl implements GenericService<Producto>{
         }
         return productoDAO.getById(id);
     }
+    public boolean idExists(long id) throws Exception{
+        return productoDAO.idExists(id);
+    }
 
     @Override
-public List<Producto> getAll() throws Exception {
-    return productoDAO.getAll();
-}
+    public List getAll() throws Exception {
+        return productoDAO.getAll();
+    }
     
-public List<Producto> getListByName(String nombre) throws Exception {
-    return productoDAO.getListByName(nombre);
-}
-
-public List<Producto> getListByBrand(String marca) throws Exception {
-    return productoDAO.getListByBrand(marca);
-}
+    public List getByName(String name) throws Exception{
+        return productoDAO.getListByName(name);
+    }
+    
+    public List getByBrand(String brand) throws Exception{
+        return productoDAO.getListByBrand(brand);
+    }
 
     public CodigoBarrasServiceImpl getCodigoBarrasServiceImpl() {
         return cbServiceImpl;
     }
     
+    /**
+     * Insert controlado por transacciones para garantizar que se den de alta tanto
+     * Producto como CodigoBarras o la operación se revierta
+     * @param prod Producto a insertar
+     * @param cb Codigo de barras correspondiente
+     * @param conn Connexión a la base de datos
+     * @throws SQLException 
+     */
     public void insertarTx(Producto prod, CodigoBarras cb, Connection conn) throws SQLException{
         TransactionManager tx = new TransactionManager(conn);
         tx.startTransaction();

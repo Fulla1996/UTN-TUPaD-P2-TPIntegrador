@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.util.List;
 import prog2int.Dao.CodigoBarrasDAO;
 import prog2int.Models.CodigoBarras;
+import prog2int.Models.TipoCB;
 
 /**
  *
@@ -15,95 +16,99 @@ import prog2int.Models.CodigoBarras;
  */
 public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
 
-    private final CodigoBarrasDAO codigoBarrasDAO;
+    private final CodigoBarrasDAO cbDAO;
 
-    public CodigoBarrasServiceImpl() {
-        this.codigoBarrasDAO = new CodigoBarrasDAO();
+    public CodigoBarrasServiceImpl(CodigoBarrasDAO cbDAO) {
+        if (cbDAO == null) {
+            throw new IllegalArgumentException("CodigoBarrasDAO no puede ser null");
+        }
+        this.cbDAO = cbDAO;
     }
     
-        private long generarNuevoId() throws Exception {
-        Long maxId = codigoBarrasDAO.getMaxId();
-        return (maxId == null ? 1 : maxId + 1);
-        }
-        
-        private void validarCodigo(CodigoBarras cb) throws Exception {
+    @Override
+    public void insertar(CodigoBarras cb) throws Exception {
+        cbDAO.insertar(cb);
+    }
 
-        if (cb.getValor() == null || cb.getValor().isBlank()) {
-            throw new Exception("El valor del código de barras no puede estar vacío.");
+    @Override
+    public void actualizar(CodigoBarras cb) throws Exception {
+        cbDAO.actualizar(cb);
+    }
+
+    @Override
+    public void eliminar(long id) throws Exception {
+        cbDAO.eliminar(id);
+    }
+
+    @Override
+    public CodigoBarras getById(long id) throws Exception {
+        return cbDAO.getById(id);
+    }
+    
+    public boolean idExists(long id) throws Exception{
+        return cbDAO.idExists(id);
+    }
+    public CodigoBarras getByValor(String valor) throws Exception{
+        return cbDAO.getByValor(valor);
+    }
+
+    @Override
+    public List<CodigoBarras> getAll()  throws Exception {
+        return cbDAO.getAll();
+    }
+    
+    public void insertarTx(CodigoBarras cb, Connection conn) throws Exception{
+        cbDAO.insertTx(cb, conn);
+    }
+    
+    public boolean validarCodigo(String tipo, String valor) throws Exception {
+
+        if (valor == null || valor.isBlank()) {
+            System.out.println("El valor del código de barras no puede estar vacío.");
+            return false;
         }
 
         // Solo dígitos
-        if (!cb.getValor().matches("\\d+")) {
-            throw new Exception("El código de barras solo puede contener números.");
+        if (!valor.matches("\\d+")) {
+            System.out.println("El código de barras solo puede contener números.");
+            return false;
         }
 
-        int longitud = cb.getValor().length();
+        int longitud = valor.length();
 
-        switch (cb.getTipoCB()) {
+        try{
+        switch (TipoCB.valueOf(tipo)) {
             case EAN13:
                 if (longitud != 13) {
-                    throw new Exception("EAN13 debe tener exactamente 13 dígitos.");
+                    System.out.println("EAN13 debe tener exactamente 13 dígitos.");
+                    return false;
                 }
                 break;
 
             case EAN8:
                 if (longitud != 8) {
-                    throw new Exception("EAN8 debe tener exactamente 8 dígitos.");
+                    System.out.println("EAN8 debe tener exactamente 8 dígitos.");
+                    return false;
                 }
                 break;
 
             case UPC:
                 if (longitud != 12) {
-                    throw new Exception("UPC debe tener exactamente 12 dígitos.");
+                    System.out.println("UPC debe tener exactamente 12 dígitos.");
+                    return false;
                 }
                 break;
 
             default:
-                throw new Exception("Tipo de código de barras no reconocido.");
+                System.out.println("Tipo de código de barras no reconocido.");
+                return false;
+        }
+        
+        return true;
+        }
+        catch(Exception e){
+            System.out.println("Tipo de código de barras no reconocido.");
+            return false;
         }
     }
-        public CodigoBarras getByValor(String valor) {
-    return codigoBarrasDAO.getByValor(valor);
-}
-        
-  
-    @Override
-    public void insertar(CodigoBarras cb) throws Exception {
-        validarCodigo(cb); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        
-        cb.setId(generarNuevoId());
-        codigoBarrasDAO.insertar(cb);
-    }
-    
-    public void insertarTx(CodigoBarras cb, Connection conn) throws Exception {
-    codigoBarrasDAO.insertTx(cb, conn);
-}
-
-
-    @Override
-    public void actualizar(CodigoBarras cb) throws Exception {
-        if (cb.getId() <= 0) {
-            throw new Exception("El ID es inválido para actualizar.");
-        }
-
-        validarCodigo(cb); // validación completa
-
-        codigoBarrasDAO.actualizar(cb);
-    }
-
-    @Override
-    public void eliminar(long id) throws Exception {
-        codigoBarrasDAO.eliminar(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public CodigoBarras getById(long id) throws Exception {
-        return codigoBarrasDAO.getById(id); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public List<CodigoBarras> getAll()  throws Exception {
-        return codigoBarrasDAO.getAll();
-    }
-    
 }

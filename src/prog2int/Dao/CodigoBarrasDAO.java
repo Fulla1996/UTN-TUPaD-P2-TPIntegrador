@@ -18,107 +18,145 @@ import prog2int.Models.TipoCB;
  */
 public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
 
+    /**
+     * Query de insert en la base de datos
+     */
     private static final String INSERT_SQL = "INSERT INTO codigoBarras (id, tipo, valor, fechaAsignacion, observaciones) VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_SQL = "UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observaciones = ? WHERE id = ?";
-    private static final String DELETE_SQL = "UPDATE codigoBarras SET eliminado = TRUE WHERE id = ?";
-    private static final String SELECT_BY_ID_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM CodigoBarras " +
-            "WHERE id = ? AND eliminado = FALSE";
 
+    /**
+     * Query de update en la base de datos
+     * NO actualiza el flag eliminado (solo se modifica en soft delete).
+     */
+    private static final String UPDATE_SQL = "UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observaciones = ? WHERE id = ?";
+
+    /**
+     * Query de soft delete.
+     * Marca eliminado=TRUE sin borrar físicamente la fila.
+     * Preserva integridad referencial y datos históricos.
+     */
+    private static final String DELETE_SQL = "UPDATE codigoBarras SET eliminado = TRUE WHERE id = ?";
+
+    /**
+     * Query para obtener codigo barras por ID.
+     * Solo retorna activos (eliminado=FALSE).
+     *
+     * Campos del ResultSet:
+     * - CodigoBarras: id, tipo, valor, fechaAsignacion, observacion, p.id
+     */
+    private static final String SELECT_BY_ID_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb " +
+            "JOIN producto p on p.codigobarras = cb.id " +
+            "WHERE cb.id = ? AND cb.eliminado = FALSE";
+
+    /**
+     * Query simplificada para obtener existencia de id en la base de datos
+     * En el mismo no se discriminan eliminados de activos
+     */
+    private static final String SELECT_ID_EXIST = "SELECT id FROM codigoBarras WHERE id = ?";
     /**
      * Query para obtener todos los códigos de barras.
      * Filtra por eliminado=FALSE (solo códigos activos).
      */
-    private static final String SELECT_ALL_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM codigoBarras " +
-            "WHERE eliminado = FALSE";
+    private static final String SELECT_ALL_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb " +
+            "JOIN producto p on p.codigobarras = cb.id " +
+            "WHERE cb.eliminado = FALSE";
 
+    /**
+     * Query de búsqueda por valor con coincidencia exacta.
+     * Solo codigos de barras activos (eliminado=FALSE).
+     */
+    private static final String SEARCH_BY_VALOR_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb " +
+            "JOIN producto p on p.codigobarras = cb.id " +
+            "WHERE cb.eliminado = FALSE AND (cb.valor = ?)";
 
-    private static final String SEARCH_BY_VALOR_SQL = "SELECT id, tipo, valor, fechaAsignacion, observaciones " +
-            "FROM codigoBarras " +
-            "WHERE eliminado = FALSE AND (valor LIKE ?)";
-
-    public Long getMaxId() throws Exception {
-        String sql = "SELECT MAX(id) AS max_id FROM codigoBarras";
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                long max = rs.getLong("max_id");
-                return rs.wasNull() ? null : max;
-            }
-        }
-        return null;
-    }
-    
-    public CodigoBarras getByValor(String valor) {
-    String sql = "SELECT * FROM codigobarras WHERE valor = ?";
-    try (Connection con = DatabaseConnection.getConnection();
-         PreparedStatement ps = con.prepareStatement(sql)) {
-
-        ps.setString(1, valor);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            return mapResultSetToCodigoBarras(rs);
-        }
-    } catch (Exception e) {
-        System.err.println("Error al buscar código: " + e.getMessage());
-    }
-    return null;
-}
-    
+    /**
+     * Inserta objeto codigo de barras en la base de datos
+     * @param cb objeto codigo de barras a insertar
+     * @throws Exception 
+     */
     @Override
     public void insertar(CodigoBarras cb) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
+            PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             setCodigoBarrasParameters(stmt, cb);
             stmt.executeUpdate();
         }
     }
 
+    /**
+     * Funcion de insert que recibe conexión externa para ser usado en transacciones
+     * @param cb objeto codigo de barras a insertar
+     * @param conn conexión externa
+     * @throws Exception 
+     */
     @Override
     public void insertTx(CodigoBarras cb, Connection conn) throws Exception {
-        try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
+        try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             setCodigoBarrasParameters(stmt, cb);
             stmt.executeUpdate();
         }
     }
 
+    /**
+     * Actualiza en la base de datos un codigo de barras
+     * @param cb objeto con datos finales a setear en la base de datos
+     * @throws Exception 
+     */
+    //"UPDATE codigoBarras SET tipo = ?, valor = ?, fechaAsignacion = ?, observacion = ? WHERE id = ?"
     @Override
     public void actualizar(CodigoBarras cb) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
+            PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
 
-            stmt.setString(1, cb.getTipoCB().toString());
+            stmt.setString(1, cb.getTipoCB().name());
             stmt.setString(2, cb.getValor());
             stmt.setDate(3, new java.sql.Date(cb.getFecha().getTime()));
             stmt.setString(4, cb.getObservaciones());
             stmt.setLong(5, cb.getId());
 
-            stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No se pudo actualizar el Codigo de Barras con ID: " + cb.getId());
+            }
+            
         }
-    }    
+    }
 
+    /**
+     * Realiza la eliminacion lógica del codigo de barras con el id proporcionado
+     * @param id identificacion del codigo de barras a eliminar
+     * @throws Exception 
+     */
+    //"UPDATE codigoBarras SET eliminado = TRUE WHERE id = ?"
     @Override
     public void eliminar(long id) throws Exception {
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
+            try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
 
             stmt.setLong(1, id);
-            stmt.executeUpdate();
-        }
-    }    
+            int rowsAffected = stmt.executeUpdate();
 
+            if (rowsAffected == 0) {
+                throw new SQLException("No se encontró Codigo de Barras con ID: " + id);
+            }
+        }
+    }
+
+    /**
+     * Trae el codigo de barras correspondiente al id proporcionado
+     * @param id identificacion del codigo de barras
+     * @return objeto codigo de barras correspondiente al id
+     * @throws Exception 
+     */
     @Override
     public CodigoBarras getById(long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
+            PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
 
-            stmt.setLong(1, id);
+            stmt.setInt(1, (int)id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -127,34 +165,110 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
             }
         }
         return null;
-    }    
+    }
 
+    /**
+     * Trae todos los codigos de barras de la base de datos
+     * @return Lista con Codigos de barras
+     * @throws Exception 
+     */
     @Override
     public List<CodigoBarras> getAll() throws Exception {
-        List<CodigoBarras> lista = new ArrayList<>();
+        List<CodigoBarras> codigosBarras = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(SELECT_ALL_SQL)) {
 
             while (rs.next()) {
-                lista.add(mapResultSetToCodigoBarras(rs));
+                codigosBarras.add(mapResultSetToCodigoBarras(rs));
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al obtener todas las personas: " + e.getMessage(), e);
+        }
+        return codigosBarras;
+    }
+    
+    /**
+     * Trae el objeto codigo de barras correspondiente al valor de la base de datos
+     * @param value valor de codigo de barras a buscar
+     * @return Objeto Codigo de barras correspondiente al valor
+     * @throws SQLException 
+     */
+    /*SEARCH_BY_VALOR_SQL = "SELECT cb.id, cb.tipo, cb.valor, cb.fechaAsignacion, cb.observaciones, p.id " +
+            "FROM codigoBarras cb" +
+            "JOIN producto p on p.codigobarras = cb.id" +
+            "WHERE eliminado = FALSE AND (valor LIKE ?)";*/
+    public CodigoBarras getByValor(String value) throws SQLException{
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_VALOR_SQL)) {
+
+            stmt.setString(1, value);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCodigoBarras(rs);
+                }
             }
         }
-        return lista;
+        return null;
     }
+    
+    /**
+     * Consulta simplificada para verificar existencia de un ID
+     * ya sea Activo o Eliminado
+     * @param id a buscar en la base de datos
+     * @return True = existe el id, False = no existe el id
+     * @throws Exception 
+     */
+    public boolean idExists(long id) throws Exception{
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SELECT_ID_EXIST)) {
+
+            stmt.setLong(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+                
+            }
+            } catch (SQLException e) {
+                throw new Exception("Error al obtener Producto por ID: " + e.getMessage(), e);
+            }
+        }
+    
+    /**
+     * Mapea el resultado del query dentro de un nuevo objeto CodigoBarras
+     * @param rs resultado de ejecución de PreparedStatement
+     * @return Codigo de Barras con todos sus campos leidos del query
+     * @throws SQLException 
+     */
     
     public CodigoBarras mapResultSetToCodigoBarras(ResultSet rs) throws SQLException{
         CodigoBarras cb = new CodigoBarras();
-        cb.setId(rs.getInt("id"));
-        cb.setValor(rs.getString("valor"));
-        cb.setFecha(rs.getDate("fechaAsignacion"));
-        cb.setObservaciones(rs.getString("observaciones"));
-        cb.setTipoCB(TipoCB.valueOf(rs.getString("tipo")));
+        cb.setId(rs.getInt("cb.id"));
+        cb.setValor(rs.getString("cb.valor"));
+        cb.setFecha(rs.getDate("cb.fechaAsignacion"));
+        cb.setObservaciones(rs.getString("cb.observaciones"));
+        cb.setTipoCB(TipoCB.valueOf(rs.getString("cb.tipo")));
+        cb.setIdProducto(rs.getLong("p.id"));
         
         return cb;
         
     }
+    
+    
+    /**
+     * Setea los parámetros de domicilio en un PreparedStatement.
+     * Método auxiliar usado por insertar() e insertTx().
+     *
+     * Parámetros seteados:
+     * 1. calle (String)
+     * 2. numero (String)
+     *
+     * @param stmt PreparedStatement con INSERT_SQL
+     * @param domicilio Domicilio con los datos a insertar
+     * @throws SQLException Si hay error al setear parámetros
+     */
     
     //(id, tipo, valor, fechaAsignacion, observacion
     private void setCodigoBarrasParameters(PreparedStatement stmt, CodigoBarras cb) throws SQLException {
@@ -164,6 +278,22 @@ public class CodigoBarrasDAO implements GenericDAO<CodigoBarras> {
         stmt.setDate(4, new java.sql.Date(cb.getFecha().getTime()));
         stmt.setString(5, cb.getObservaciones());
     }
+
+    /**
+     * Obtiene el ID autogenerado por la BD después de un INSERT.
+     * Asigna el ID generado al objeto domicilio.
+     *
+     * IMPORTANTE: Este método es crítico para mantener la consistencia:
+     * - Después de insertar, el objeto domicilio debe tener su ID real de la BD
+     * - PersonaServiceImpl.insertar() depende de esto para setear la FK:
+     *   1. domicilioService.insertar(domicilio) → domicilio.id se setea aquí
+     *   2. personaDAO.insertar(persona) → usa persona.getDomicilio().getId() para la FK
+     * - Necesario para operaciones transaccionales que requieren el ID generado
+     *
+     * @param stmt PreparedStatement que ejecutó el INSERT con RETURN_GENERATED_KEYS
+     * @param domicilio Objeto domicilio a actualizar con el ID generado
+     * @throws SQLException Si no se pudo obtener el ID generado (indica problema grave)
+     */
 
     
 }

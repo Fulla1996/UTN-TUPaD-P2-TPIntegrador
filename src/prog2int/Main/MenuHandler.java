@@ -32,21 +32,6 @@ public class MenuHandler {
         this.cbService = cbService;
     }
     
-    //Método mostrarProductos
-    private void mostrarProductos(List<Producto> lista) {
-        System.out.println("\n===== RESULTADOS =====");
-
-        for (Producto p : lista) {
-            System.out.println("-----------------------");
-            System.out.println("ID: " + p.getId());
-            System.out.println("Nombre: " + p.getNombre());
-            System.out.println("Marca: " + p.getMarca());
-            System.out.println("Precio: " + p.getPrecio());
-        }
-
-        System.out.println("-----------------------\n");
-    }
-    
     // Opcion 1
         public void listarProductos() {
         try {
@@ -56,12 +41,7 @@ public class MenuHandler {
                 return;
             }
 
-            lista.forEach(p -> {
-                System.out.println(p);
-                if (p.getCodigoBarras() != null) {
-                    System.out.println("   → Código: " + p.getCodigoBarras().getValor());
-                }
-            });
+            mostrarProductos(lista);
         } catch (Exception e) {
             System.err.println("Error al listar productos: " + e.getMessage());
         }
@@ -76,16 +56,18 @@ public class MenuHandler {
             do{
                 System.out.print("ID: ");
                 idCB = Long.parseLong(scanner.nextLine());
-                if (cbService.getById(idCB) != null)
+                if (cbService.idExists(idCB))
                     System.out.println("El ID del código de barras ya existe. Intente otro.");
-            }while(cbService.getById(idCB) != null);
+            }while(cbService.idExists(idCB));
 
+            String tipo, valor;
+            do{
             System.out.print("Tipo (EAN13/EAN8/UPC): ");
-            String tipo = scanner.nextLine().trim().toUpperCase();
+            tipo = scanner.nextLine().trim().toUpperCase();
 
             System.out.print("Valor: ");
-            String valor = scanner.nextLine().trim();
-
+            valor = scanner.nextLine().trim();
+            }while(!cbService.validarCodigo(tipo, valor));
             System.out.print("Observaciones: ");
             String obs = scanner.nextLine().trim();
 
@@ -97,10 +79,10 @@ public class MenuHandler {
             System.out.print("ID: ");
             idP = Long.parseLong(scanner.nextLine());
             
-            if (productoService.getById(idP) != null){
+            if (productoService.idExists(idP)){
                 System.out.println("Id ya existente, intente otro.");
             }
-            }while(productoService.getById(idP) != null);
+            }while(productoService.idExists(idP));
             
             System.out.print("Nombre: ");
             String nombre = scanner.nextLine().trim();
@@ -140,10 +122,7 @@ public class MenuHandler {
                 return;
             }
 
-            System.out.println(p);
-            if (p.getCodigoBarras() != null) {
-                System.out.println("   → Código asignado: " + p.getCodigoBarras());
-            }
+            mostrarProductos(List.of(p));
         } catch (Exception e) {
             System.err.println("Error al buscar producto: " + e.getMessage());
         }
@@ -156,51 +135,48 @@ public class MenuHandler {
                 return;
             }
 
-            System.out.println(p);
-            if (p.getCodigoBarras() != null) {
-                System.out.println("   → Código asignado: " + p.getCodigoBarras());
-            }
+            mostrarProductos(List.of(p));
         } catch (Exception e) {
             System.err.println("Error al buscar el codigo de barras: " + e.getMessage());
         }
     }
     
     //Opcion 4
-     public void buscarProductoPorNombre() {
-    System.out.print("Ingrese el nombre a buscar: ");
-    String nombre = scanner.nextLine();
+    public void buscarProductoPorNombre() {
+        System.out.print("Ingrese el nombre a buscar: ");
+        String nombre = scanner.nextLine();
 
-    try {
-        List<Producto> productos = productoService.getListByName(nombre);
+        try {
+            List<Producto> productos = productoService.getByName(nombre);
 
-        if (productos.isEmpty()) {
-            System.out.println("No se encontraron productos con ese nombre.");
-        } else {
-            mostrarProductos(productos);
-        }
-    } catch (Exception e) {
-        System.out.println("Error: " + e.getMessage());
+            if (productos.isEmpty()) {
+               System.out.println("No se encontraron productos con ese nombre.");
+            } else {
+                mostrarProductos(productos);
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
     }
 }
+    
+    //Opcion 5
+    public void buscarProductoPorMarca(){
+        System.out.print("Ingrese la marca o categoria a buscar: ");
+        String marca = scanner.nextLine();
 
-     // Opción 5 
-public void buscarProductoPorMarca() {
-    System.out.print("Ingrese la marca a buscar: ");
-    String marca = scanner.nextLine();
+        try {
+            List<Producto> productos = productoService.getByBrand(marca);
 
-    try {
-        List<Producto> productos = productoService.getListByBrand(marca);
-
-        if (productos.isEmpty()) {
-            System.out.println("No se encontraron productos con esa marca.");
-        } else {
-            mostrarProductos(productos);
+            if (productos.isEmpty()) {
+                System.out.println("No se encontraron productos con esa marca o categoria.");
+            } else {
+                mostrarProductos(productos);
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("Error: " + e.getMessage());
     }
-}
-     
+    
      //Opcion 6
      public void actualizarProducto() {
         try {
@@ -253,11 +229,16 @@ public void buscarProductoPorMarca() {
      //Option 7
      public void eliminarProducto() {
         try {
+            long id;
             System.out.print("ID del producto: ");
-            long id = Long.parseLong(scanner.nextLine());
-
-            productoService.eliminar(id);
-            System.out.println("✔ Producto eliminado (lógico).");
+            id = Long.parseLong(scanner.nextLine());
+            if (productoService.getById(id) == null){
+                System.out.println("ID de produto inexistente");
+                }
+            else{
+                productoService.eliminar(id);
+                System.out.println("✔ Producto eliminado (lógico).");
+            }
         } catch (Exception e) {
             System.err.println("Error al eliminar producto: " + e.getMessage());
         }
@@ -298,22 +279,23 @@ public void buscarProductoPorMarca() {
      
      //Opcion 10
      
-     public void buscarCodigoBarrasPorValor() {
-    System.out.print("Ingrese el valor del código de barras: ");
-    String valor = scanner.nextLine();
+     public void buscarCodigoBarrasPorValor(){
+         try {
+            System.out.print("Nombre de producto a buscar: ");
+            String nombre = scanner.nextLine();
 
-    try {
-        CodigoBarras cb = cbService.getByValor(valor);
+            CodigoBarras cb = cbService.getByValor(nombre);
+            if (cb == null) {
+                System.out.println("No se encontró el código.");
+                return;
+            }
+            
+             buscarProductoPorId(cb.getIdProducto());
 
-        if (cb == null) {
-            System.out.println("No se encontró un código de barras con ese valor.");
-        } else {
-            System.out.println(cb);
+        } catch (Exception e) {
+            System.err.println("Error al buscar código: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("Error: " + e.getMessage());
-    }
-}
+     }
      
      //Opcion 11
      public void actualizarCodigo() {
@@ -383,6 +365,36 @@ public void buscarProductoPorMarca() {
         } catch (Exception e) {
             System.err.println("Error al eliminar código: " + e.getMessage());
         }
+    }
+    
+
+    /**
+     * Metodo de muestra de productos con un formato más amigable
+     * @param lista Lista de productos a mostrar
+     */
+    private void mostrarProductos(List<Producto> lista) {
+        System.out.println("\n============= RESULTADOS =============");
+
+        for (Producto p : lista) {
+            System.out.println("--------------------------------------");
+            System.out.println("ID: " + p.getId());
+            System.out.println("Nombre: " + p.getNombre());
+            System.out.println("Marca: " + p.getMarca());
+            System.out.println("Categoria: " + p.getCategoria());
+            System.out.println("Precio: " + p.getPrecio());
+            System.out.println("Peso: " + p.getPeso());
+            System.out.println("--------------------------------------");
+            System.out.println("========== CODIGO DE BARRAS ==========");
+            System.out.println("--------------------------------------");
+            System.out.println("ID: " + p.getCodigoBarras().getId());
+            System.out.println("Tipo: " + p.getCodigoBarras().getTipoCB());
+            System.out.println("Valor: " + p.getCodigoBarras().getValor());
+            System.out.println("Fecha Asignación: " + p.getCodigoBarras().getFecha());
+            System.out.println("Observaciones: " + p.getCodigoBarras().getObservaciones());
+            
+        }
+
+        System.out.println("--------------------------------------\n");
     }
     
 }
