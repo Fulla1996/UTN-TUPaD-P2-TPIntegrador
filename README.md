@@ -140,17 +140,25 @@ Ajustar usuario/contraseña según la configuración local de MySQL.
 UTN-TUPaD-P2-TPIntegrador/
 src/
    ├── Config/
-   |   └── DatabaseConnection.java
+   |   ├── DatabaseConnection.java
+   |   └── TrabsactionManager
    ├── Dao/
    |   ├── GenericDao.java
    |   ├── ProductoDaoImpl.java
    |   └── CodigoBarrasDaoImpl.java
    ├── Main/
-   |   └── AppMenu.java
+   |   ├── AppMenu.java
+   |   ├── Main.java
+   |   ├── MenuDisplay.java
+   |   ├── MenuHandler.java
+   |   └── TestConexion,java
    ├── Models/Entities/
-   |    ├── Producto.java 
-   |    └── CodigoBarras.java          
+   |   ├── Base.java
+   |   ├── TipoCB.java 
+   |   ├── Producto.java 
+   |   └── CodigoBarras.java          
    └── Service/
+       ├── GenericService.java
        ├── ServiceProducto.java 
        └── ServiceCodigoBarras.java
 ```

@@ -391,8 +391,8 @@ public class MenuHandler {
             System.out.println("Tipo: " + p.getCodigoBarras().getTipoCB());1
             System.out.println("Valor: " + p.getCodigoBarras().getValor());
             System.out.println("Fecha Asignación: " + p.getCodigoBarras().getFecha());
-            System.out.println("Observaciones: " + p.getCodigoBarras().getObservaciones());
             */
+            System.out.println("Observaciones: " + p.getCodigoBarras().getObservaciones());            
         }
         System.out.println("--------------------------------------\n");
     }
