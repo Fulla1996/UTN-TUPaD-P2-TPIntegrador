@@ -64,7 +64,8 @@ public class ProductoDAO implements GenericDAO<Producto>{
     private static final String SELECT_ALL_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE";
+            "WHERE p.eliminado = FALSE " +
+            "ORDER BY p.id asc";
 
     /**
      * Query de búsqueda por nombre con LIKE.
@@ -75,7 +76,8 @@ public class ProductoDAO implements GenericDAO<Producto>{
     private static final String SEARCH_BY_NAME_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?)";
+            "WHERE p.eliminado = FALSE AND (p.nombre LIKE ?) " + 
+            "ORDER BY p.nombre";
 
     /**
      * Query de búsqueda por marca o categoria.
@@ -86,7 +88,8 @@ public class ProductoDAO implements GenericDAO<Producto>{
     private static final String SEARCH_BY_BRAND_SQL = "SELECT p.id, p.nombre, p.marca, p.categoria, p.precio, " +
             "p.peso, cb.id, cb.tipo,cb.valor, cb.fechaAsignacion, cb.observaciones " +
             "FROM producto p JOIN codigoBarras cb ON p.codigoBarras = cb.id " +
-            "WHERE p.eliminado = FALSE AND ((p.marca LIKE ?) OR (p.categoria LIKE ?))";
+            "WHERE p.eliminado = FALSE AND ((p.marca LIKE ?) OR (p.categoria LIKE ?)) " + 
+            "ORDER BY p.marca, p.categoria";
 
     /**
      * DAO de CodigoBarras
@@ -258,7 +261,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
             stmt.setString(1, namefilter);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     productos.add(mapResultSetToProducto(rs));
                 }
             }
@@ -296,7 +299,7 @@ public class ProductoDAO implements GenericDAO<Producto>{
             stmt.setString(2, brandFilter);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     productos.add(mapResultSetToProducto(rs));
                 }
             }
