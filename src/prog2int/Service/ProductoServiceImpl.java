@@ -85,7 +85,7 @@ public class ProductoServiceImpl implements GenericService<Producto>{
      * @param conn Connexión a la base de datos
      * @throws SQLException 
      */
-    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn) throws SQLException{
+    public void insertarTx(Producto prod, CodigoBarras cb, Connection conn) throws SQLException, Exception{
         TransactionManager tx = new TransactionManager(conn);
         tx.startTransaction();
         try{
@@ -96,8 +96,9 @@ public class ProductoServiceImpl implements GenericService<Producto>{
             
         }catch (Exception e) {
                 tx.rollback();
-                System.err.println("Error en la transaccion: " + e.getMessage());
-            }
+                //System.err.println("Error en la transaccion: " + e.getMessage());
+                throw new Exception("Error en la transaccion: " + e.getMessage());
+        }
         finally{
             tx.close();
         }
