@@ -279,7 +279,7 @@ public class MenuHandler {
      //Opcion 10
      public void buscarCodigoBarrasPorValor(){
          try {
-            System.out.print("Nombre de producto a buscar: ");
+            System.out.print("Valor del código barras a buscar: ");
             String nombre = scanner.nextLine();
 
             CodigoBarras cb = cbService.getByValor(nombre);
