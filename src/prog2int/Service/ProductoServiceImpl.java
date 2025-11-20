@@ -95,9 +95,9 @@ public class ProductoServiceImpl implements GenericService<Producto>{
             tx.commit();
             
         }catch (Exception e) {
-                tx.rollback();
-                System.err.println("Error en la transaccion: " + e.getMessage());
-            }
+            tx.rollback();
+            System.err.println("Error en la transaccion: " + e.getMessage());
+        }
         finally{
             tx.close();
         }

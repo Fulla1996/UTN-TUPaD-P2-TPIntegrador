@@ -33,7 +33,7 @@ public class MenuHandler {
     }
     
     // Opcion 1
-        public void listarProductos() {
+    public void listarProductos() {
         try {
             List<Producto> lista = productoService.getAll();
             if (lista.isEmpty()) {
@@ -62,11 +62,11 @@ public class MenuHandler {
 
             String tipo, valor;
             do{
-            System.out.print("Tipo (EAN13/EAN8/UPC): ");
-            tipo = scanner.nextLine().trim().toUpperCase();
+                System.out.print("Tipo (EAN13/EAN8/UPC): ");
+                tipo = scanner.nextLine().trim().toUpperCase();
 
-            System.out.print("Valor: ");
-            valor = scanner.nextLine().trim();
+                System.out.print("Valor: ");
+                valor = scanner.nextLine().trim();
             }while(!cbService.validarCodigo(tipo, valor));
             System.out.print("Observaciones: ");
             String obs = scanner.nextLine().trim();
@@ -76,12 +76,12 @@ public class MenuHandler {
             System.out.println("\n--- Crear Producto ---");
             long idP;
             do{
-            System.out.print("ID: ");
-            idP = Long.parseLong(scanner.nextLine());
-            
-            if (productoService.idExists(idP)){
-                System.out.println("Id ya existente, intente otro.");
-            }
+                System.out.print("ID: ");
+                idP = Long.parseLong(scanner.nextLine());
+
+                if (productoService.idExists(idP)){
+                    System.out.println("Id ya existente, intente otro.");
+                }
             }while(productoService.idExists(idP));
             
             System.out.print("Nombre: ");
@@ -110,7 +110,6 @@ public class MenuHandler {
     }
     
     //Opcion 3
-        
     public void buscarProductoPorId() {
         try {
             System.out.print("ID: ");
@@ -156,8 +155,8 @@ public class MenuHandler {
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+        }
     }
-}
     
     //Opcion 5
     public void buscarProductoPorMarca(){
@@ -278,7 +277,6 @@ public class MenuHandler {
     }
      
      //Opcion 10
-     
      public void buscarCodigoBarrasPorValor(){
          try {
             System.out.print("Nombre de producto a buscar: ");
@@ -370,7 +368,7 @@ public class MenuHandler {
 
     /**
      * Metodo de muestra de productos con un formato más amigable
-     * @param lista Lista de productos a mostrar
+     * @param lista Lista de productos a mostr1ar
      */
     private void mostrarProductos(List<Producto> lista) {
         System.out.println("\n============= RESULTADOS =============");
@@ -385,17 +383,17 @@ public class MenuHandler {
             System.out.println("Categoria: " + p.getCategoria());
             System.out.println("Precio: " + p.getPrecio());
             System.out.println("Peso: " + p.getPeso());
-            System.out.println("--------------------------------------");
+            System.out.println("Codigo de barra: " + p.getCodigoBarras().getValor() + " (ID: " + p.getCodigoBarras().getId() + ")");
+            /*System.out.println("--------------------------------------");
             System.out.println("---------- CODIGO DE BARRAS ----------");
             System.out.println("--------------------------------------");
             System.out.println("ID: " + p.getCodigoBarras().getId());
-            System.out.println("Tipo: " + p.getCodigoBarras().getTipoCB());
+            System.out.println("Tipo: " + p.getCodigoBarras().getTipoCB());1
             System.out.println("Valor: " + p.getCodigoBarras().getValor());
             System.out.println("Fecha Asignación: " + p.getCodigoBarras().getFecha());
             System.out.println("Observaciones: " + p.getCodigoBarras().getObservaciones());
-            
+            */
         }
-
         System.out.println("--------------------------------------\n");
     }
     
