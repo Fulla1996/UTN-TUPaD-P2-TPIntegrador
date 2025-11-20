@@ -93,12 +93,14 @@ public class ProductoServiceImpl implements GenericService<Producto>{
             productoDAO.insertTx(prod, conn);
             
             tx.commit();
-            tx.close();
             
         }catch (Exception e) {
                 tx.rollback();
                 System.err.println("Error en la transaccion: " + e.getMessage());
             }
+        finally{
+            tx.close();
+        }
     }
     
 }

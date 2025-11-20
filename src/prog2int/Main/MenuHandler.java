@@ -377,6 +377,8 @@ public class MenuHandler {
 
         for (Producto p : lista) {
             System.out.println("--------------------------------------");
+            System.out.println("-------------- PRODUCTO --------------");
+            System.out.println("--------------------------------------");
             System.out.println("ID: " + p.getId());
             System.out.println("Nombre: " + p.getNombre());
             System.out.println("Marca: " + p.getMarca());
@@ -384,7 +386,7 @@ public class MenuHandler {
             System.out.println("Precio: " + p.getPrecio());
             System.out.println("Peso: " + p.getPeso());
             System.out.println("--------------------------------------");
-            System.out.println("========== CODIGO DE BARRAS ==========");
+            System.out.println("---------- CODIGO DE BARRAS ----------");
             System.out.println("--------------------------------------");
             System.out.println("ID: " + p.getCodigoBarras().getId());
             System.out.println("Tipo: " + p.getCodigoBarras().getTipoCB());

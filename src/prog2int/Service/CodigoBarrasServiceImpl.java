@@ -61,7 +61,7 @@ public class CodigoBarrasServiceImpl implements GenericService<CodigoBarras>{
         cbDAO.insertTx(cb, conn);
     }
     
-    public boolean validarCodigo(String tipo, String valor) throws Exception {
+    public boolean validarCodigo(String tipo, String valor) {
 
         if (valor == null || valor.isBlank()) {
             System.out.println("El valor del código de barras no puede estar vacío.");
