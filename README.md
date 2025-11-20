@@ -141,7 +141,7 @@ UTN-TUPaD-P2-TPIntegrador/
 src/
    ├── Config/
    |   ├── DatabaseConnection.java
-   |   └── TrabsactionManager
+   |   └── TransactionManager
    ├── Dao/
    |   ├── GenericDao.java
    |   ├── ProductoDaoImpl.java
